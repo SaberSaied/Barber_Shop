@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 40 10% 92%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 40 10% 92%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 40 10% 92%;
+
+    --primary: 38 72% 55%;
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 40 10% 85%;
+
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
+
+    --accent: 38 72% 55%;
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 38 72% 55%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 40 10% 85%;
+    --sidebar-primary: 38 72% 55%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 40 10% 85%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 38 72% 55%;
+
+    /* Custom tokens */
+    --gold: 38 72% 55%;
+    --gold-light: 38 72% 70%;
+    --gold-dark: 38 72% 40%;
+    --surface: 0 0% 6%;
+    --surface-hover: 0 0% 10%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(38 72% 55%), hsl(38 72% 70%));
+  }
+
+  .border-gradient-gold {
+    border-image: linear-gradient(135deg, hsl(38 72% 55%), hsl(38 72% 70%)) 1;
+  }
+
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, hsl(38 72% 55%), hsl(38 72% 40%));
+  }
+
+  .bg-gradient-dark {
+    background: linear-gradient(180deg, hsl(0 0% 4%), hsl(0 0% 8%));
+  }
+
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-md border border-border/50;
+  }
+
+  /* RTL spacing utilities */
+  .rtl-space > * + * {
+    margin-inline-start: 0.5rem;
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 30px -5px hsl(38 72% 55% / 0.3);
+  }
+
+  .section-padding {
+    @apply py-20 md:py-28 px-4 md:px-8;
+  }
+}
