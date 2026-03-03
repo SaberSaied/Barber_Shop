@@ -18,7 +18,7 @@ const LanguageSwitcher = () => {
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      className="text-muted-foreground hover:text-white gap-1.5"
+      className="text-muted-foreground hover:text-background gap-1.5"
     >
       <Globe className="w-4 h-4" />
       <span className="text-xs font-medium">{t("lang.switchTo")}</span>

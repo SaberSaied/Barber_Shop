@@ -1,14 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Pencil, Trash2, Check } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, ArrowUpDown, Calendar as CalendarIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format } from "date-fns";
+import { endOfDay, format, isWithinInterval, startOfDay } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+
 
 interface Employee {
   id: string;
@@ -25,23 +30,41 @@ interface AttendanceRecord {
   notes: string | null;
 }
 
+type SortDirection = 'asc' | 'desc';
+
+
 const Attendance = () => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [date, setDate] = useState<DateRange | undefined>();
+  const [nameFilter, setNameFilter] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ employee_id: "", date: format(new Date(), "yyyy-MM-dd"), clock_in: "", clock_out: "", status: "present", notes: "" });
+  const [sortConfig, setSortConfig] = useState<{ key: keyof AttendanceRecord; direction: SortDirection }>({ key: 'date', direction: 'desc' });
 
   const fetchData = async () => {
     setLoading(true);
+    
+    const attQuery = supabase
+      .from("attendance" as any)
+      .select("*")
+      .order("date", { ascending: false });
+
     const [attRes, empRes] = await Promise.all([
-      supabase.from("attendance" as any).select("*").order("date", { ascending: false }).limit(100),
+      attQuery,
       supabase.from("employees" as any).select("id, name").eq("is_active", true),
     ]);
-    if (attRes.data) setRecords(attRes.data as any);
+    
+    if (attRes.error) {
+      toast({ title: t("auth.error"), description: attRes.error.message, variant: "destructive" });
+    } else if (attRes.data) {
+      setRecords(attRes.data as any);
+    }
+    
     if (empRes.data) setEmployees(empRes.data as any);
     setLoading(false);
   };
@@ -49,6 +72,54 @@ const Attendance = () => {
   useEffect(() => { fetchData(); }, []);
 
   const getEmployeeName = (id: string) => employees.find((e) => e.id === id)?.name || "—";
+
+  const filteredRecords = useMemo(() => {
+    let filtered = [...records];
+
+    if (date?.from && date?.to) {
+      filtered = filtered.filter(record => 
+        isWithinInterval(new Date(record.date), { start: startOfDay(date.from as Date), end: endOfDay(date.to as Date) })
+      );
+    }
+
+    if (nameFilter) {
+      filtered = filtered.filter(record =>
+        getEmployeeName(record.employee_id).toLowerCase().includes(nameFilter.toLowerCase())
+      );
+    }
+
+    filtered.sort((a, b) => {
+      const aValue = sortConfig.key === 'employee_id' ? getEmployeeName(a.employee_id) : a[sortConfig.key];
+      const bValue = sortConfig.key === 'employee_id' ? getEmployeeName(b.employee_id) : b[sortConfig.key];
+
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return filtered;
+  }, [records, nameFilter, employees, sortConfig, date]);
+
+  const requestSort = (key: keyof AttendanceRecord) => {
+    let direction: SortDirection = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortArrow = (key: keyof AttendanceRecord) => {
+    if (sortConfig.key !== key) return <ArrowUpDown className="w-4 h-4 ml-2 opacity-20" />;
+    return sortConfig.direction === 'asc' ? '▲' : '▼';
+  };
+
 
   const openAdd = () => {
     setEditingId(null);
@@ -109,27 +180,82 @@ const Attendance = () => {
           </Button>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="date"
+                variant={"outline"}
+                className={cn(
+                  "w-[300px] justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date?.from ? (
+                  date.to ? (
+                    <>
+                      {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(date.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>{t("admin.pickDate")}</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={date?.from}
+                selected={date}
+                onSelect={setDate}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
+          <Input
+            placeholder={t("admin.filterByName", "Filter by name...")}
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+
+
         <div className="glass-card rounded-xl p-6">
           {loading ? (
             <p className="text-muted-foreground text-center py-8">{t("auth.loading")}</p>
-          ) : records.length === 0 ? (
+          ) : filteredRecords.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">{t("admin.noData")}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.employee")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("booking.date")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.clockIn")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.clockOut")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.status")}</th>
+                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('employee_id')}>
+                      <div className="flex items-center">{t("admin.employee")} {renderSortArrow('employee_id')}</div>
+                    </th>
+                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('date')}>
+                      <div className="flex items-center">{t("booking.date")} {renderSortArrow('date')}</div>
+                    </th>
+                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('clock_in')}>
+                      <div className="flex items-center">{t("admin.clockIn")} {renderSortArrow('clock_in')}</div>
+                    </th>
+                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('clock_out')}>
+                      <div className="flex items-center">{t("admin.clockOut")} {renderSortArrow('clock_out')}</div>
+                    </th>
+                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('status')}>
+                      <div className="flex items-center">{t("admin.status")} {renderSortArrow('status')}</div>
+                    </th>
                     <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.notes")}</th>
                     <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {records.map((r) => (
+                  {filteredRecords.map((r) => (
                     <tr key={r.id} className="border-b border-border/50">
                       <td className="py-3 font-medium">{getEmployeeName(r.employee_id)}</td>
                       <td className="py-3 text-muted-foreground">{r.date}</td>
@@ -142,10 +268,10 @@ const Attendance = () => {
                       </td>
                       <td className="py-3 text-muted-foreground text-xs max-w-[150px] truncate">{r.notes || "—"}</td>
                       <td className="py-3 flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(r)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-green-700 hover:bg-green-700 hover:text-white" onClick={() => openEdit(r)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteRecord(r.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-white hover:bg-red-700" onClick={() => deleteRecord(r.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </td>

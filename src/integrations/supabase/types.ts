@@ -58,6 +58,48 @@ export type Database = {
           },
         ]
       }
+
+      expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          employee_id: string
+          id: string
+          description: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          description?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          description?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bills: {
         Row: {
           created_at: string

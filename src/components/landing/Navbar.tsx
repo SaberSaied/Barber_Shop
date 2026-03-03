@@ -37,11 +37,11 @@ const Navbar = () => {
             </a>
           ))}
           <LanguageSwitcher />
-          <Link to="#booking">
+          <a href="#booking">
             <Button size="sm" className="bg-gradient-gold text-primary-foreground font-semibold tracking-wide uppercase text-xs px-6">
               {t("nav.bookNow")}
             </Button>
-          </Link>
+          </a>
         </div>
 
         <button className="md:hidden text-foreground" onClick={() => setIsOpen(!isOpen)}>

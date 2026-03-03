@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, MessageCircle, Instagram, Facebook } from "lucide-react";
+import { MapPin, Phone, MessageCircle, Instagram, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 
@@ -23,9 +23,9 @@ const Contact = () => {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {[
-            { icon: MapPin, title: t("contact.location"), lines: [t("contact.address1"), t("contact.address2")] },
-            { icon: Clock, title: t("contact.workingHours"), lines: [t("contact.weekdays"), t("contact.weekends")] },
-            { icon: Phone, title: t("contact.contactTitle"), lines: [t("contact.phone"), t("contact.email")] },
+            { icon: MapPin, title: t("contact.location"), lines: [t("contact.address1"), t("contact.address2")], link: "https://maps.app.goo.gl/vzNigFct8z88uiyE9" },
+            { icon: MessageCircle, title: t("contact.message"), lines: [t("contact.email")], link: `mailto:${t("contact.email")}` },
+            { icon: Phone, title: t("contact.contactTitle"), lines: [t("contact.phone")], link: `tel:${t("contact.phone")}` },
           ].map((item, idx) => (
             <motion.div
               key={item.title}
@@ -35,13 +35,15 @@ const Contact = () => {
               transition={{ delay: idx * 0.1 }}
               className="glass-card rounded-xl p-6 text-center"
             >
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <item.icon className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-display text-lg font-semibold mb-3">{item.title}</h3>
-              {item.lines.map((line) => (
-                <p key={line} className="text-sm text-muted-foreground">{line}</p>
-              ))}
+              <a href={item.link} target="_blank" rel="noopener noreferrer">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-display text-lg font-semibold mb-3">{item.title}</h3>
+                {item.lines.map((line) => (
+                  <p key={line} className="text-sm text-muted-foreground">{line}</p>
+                ))}
+              </a>
             </motion.div>
           ))}
         </div>

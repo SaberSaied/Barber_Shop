@@ -48,7 +48,7 @@ const Services = () => {
           <p className="text-muted-foreground max-w-md mx-auto">{t("services.subtitle")}</p>
         </motion.div>
 
-        <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {categories.map((category: string, idx: number) => (
             <motion.div
               key={category}

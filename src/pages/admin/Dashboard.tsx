@@ -256,7 +256,7 @@ const Dashboard = () => {
                         </Select>
                       </td>
                       <td className="py-3">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteBooking(b.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-white hover:bg-destructive" onClick={() => deleteBooking(b.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </td>

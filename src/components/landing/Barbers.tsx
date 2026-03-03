@@ -68,7 +68,7 @@ const Barbers = () => {
               </div>
 
               <h3 className="font-display text-xl font-semibold mb-1">{getDisplayName(barber)}</h3>
-              <p className="text-primary text-sm font-medium mb-2">{barber.role}</p>
+              <p className="text-primary text-sm font-medium mb-2">{t(`admin.${barber.role}`)}</p>
               {barber.schedule && (
                 <span className="text-xs px-3 py-1 rounded-full bg-secondary text-secondary-foreground">
                   {barber.schedule}
