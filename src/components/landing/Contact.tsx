@@ -34,7 +34,7 @@ const Contact = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="glass-card rounded-xl p-6 text-center hover:border-border hover:border-primary hover:translate-y-5"
+              className="glass-card rounded-xl p-6 text-center hover:-translate-y-5 transition-all hover:border hover:border-primary duration-300"
             >
               <a href={item.link} target="_blank" rel="noopener noreferrer">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">

@@ -17,12 +17,6 @@ export const en = {
     description: "Expert barbers, premium products, and an atmosphere that makes every visit unforgettable.",
     bookAppointment: "Book Appointment",
     viewServices: "View Services",
-    rating: "4.9 Rating",
-    reviews: "500+ Reviews",
-    openToday: "Open Today",
-    hours: "9AM – 9PM",
-    established: "Est. 2018",
-    years: "6+ Years",
   },
   // Services
   services: {
@@ -126,7 +120,7 @@ export const en = {
     message: "Send us a message",
     email: "karizmabarbershop@gmail.com",
     contactTitle: "Call us",
-    phone: "+1 (555) 123-4567",
+    phone: "+20 122 505 7659",
   },
   // Footer
   footer: {

@@ -17,12 +17,6 @@ export const ar = {
     description: "حلاقون محترفون، منتجات فاخرة، وأجواء تجعل كل زيارة لا تُنسى.",
     bookAppointment: "احجز موعد",
     viewServices: "عرض الخدمات",
-    rating: "تقييم 4.9",
-    reviews: "+500 تقييم",
-    openToday: "مفتوح اليوم",
-    hours: "9 صباحاً – 9 مساءً",
-    established: "تأسس 2018",
-    years: "+6 سنوات",
   },
   // Services
   services: {
@@ -125,7 +119,7 @@ export const ar = {
     address2: "شارع بطن الجبل",
     message: "ارسل لنا رسالة",
     contactTitle: "اتصل بنا",
-    phone: "+1 (555) 123-4567",
+    phone: "+20 122 505 7659",
     email: "karizmabarbershop@gmail.com",
   },
   // Footer

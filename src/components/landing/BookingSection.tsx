@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, CheckCircle2, ChevronRight, ChevronLeft, User, Phone, Scissors, CalendarDays, UserCheck, Hash } from "lucide-react";
+import { Calendar, CheckCircle2, ChevronRight, ChevronLeft, User, Scissors, CalendarDays, UserCheck, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
