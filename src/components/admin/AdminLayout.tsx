@@ -36,9 +36,8 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-background overflow-x-auto overflow-y-auto">
-      <Menu className="absolute top-6 left-6 cursor-pointer md:hidden" onClick={() => setIsOpen(!isOpen)} />
-      <aside className={`transition-all md:left-0 w-64 bg-sidebar border-e border-sidebar-border flex flex-col fixed inset-y-0 start-0 z-40 ${ isOpen ? "left-0" : "-left-64" }`}>
+    <div className="min-h-screen bg-background">
+      <aside className={`transition-transform transform md:translate-x-0 w-64 bg-sidebar border-e border-sidebar-border flex flex-col fixed inset-y-0 start-0 z-40 ${ isOpen ? "translate-x-0" : "-translate-x-full" }`}>
         <div className="p-6 border-b border-sidebar-border">
           <Link to="/" className="flex items-center gap-2">
             <Scissors className="w-6 h-6 text-sidebar-primary" />
@@ -47,7 +46,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
           <p className="text-xs text-muted-foreground mt-1">{t("admin.panel")}</p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {sidebarLinks.map((link) => {
             const isActive = location.pathname === link.href;
             return (
@@ -86,9 +85,17 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
         </div>
       </aside>
 
-      <main className="flex-1 md:ms-64 p-6 pt-20 md:p-8" onClick={() => isOpen && setIsOpen(false)}>
-        {isOpen && <div className="absolute inset-0 bg-black/80 z-30 md:hidden" />}
-        {children}
+      <main className="flex-1 md:ms-64">
+        <header className="flex items-center justify-between h-16 px-6 border-b border-border md:justify-end">
+          <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+            <Menu />
+          </button>
+          <LanguageSwitcher />
+        </header>
+        <div className="p-6">
+          {children}
+        </div>
+        {isOpen && <div className="absolute inset-0 bg-black/60 z-30 md:hidden" onClick={() => setIsOpen(false)} />}
       </main>
     </div>
   );

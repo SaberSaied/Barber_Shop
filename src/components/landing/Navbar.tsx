@@ -69,9 +69,6 @@ const Navbar = () => {
                 </a>
               ))}
               <LanguageSwitcher />
-              <Link to="/auth" onClick={() => setIsOpen(false)}>
-                <Button variant="ghost" size="sm" className="w-full hover:text-white text-muted-foreground">{t("auth.login")}</Button>
-              </Link>
               <a href="#booking" onClick={() => setIsOpen(false)}>
                 <Button className="w-full bg-gradient-gold text-primary-foreground font-semibold uppercase text-xs">
                   {t("nav.bookNow")}

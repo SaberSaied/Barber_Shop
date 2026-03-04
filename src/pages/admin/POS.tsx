@@ -552,7 +552,7 @@ const POS = () => {
           </div>
 
           <div className="flex justify-between items-center mb-4 gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap flex-col md:flex-row">
               {(period === "custom") && (
                 <Popover>
                   <PopoverTrigger asChild>
@@ -597,7 +597,6 @@ const POS = () => {
                 onChange={(e) => setNameFilter(e.target.value)}
                 className="max-w-sm"
               />
-              <div className="flex items-center space-x-2">
                 <Select value={groupBy} onValueChange={(value) => setGroupBy(value === 'none' ? '' : value)}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder={t("admin.groupBy")} />
@@ -607,25 +606,22 @@ const POS = () => {
                     <SelectItem value="barber">{t("admin.barber")}</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Select value={aggregationType} onValueChange={setAggregationType}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder={t("admin.aggregation")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sum">{t("admin.sum")}</SelectItem>
-                  <SelectItem value="average">{t("admin.average")}</SelectItem>
-                  <SelectItem value="max">{t("admin.max")}</SelectItem>
-                  <SelectItem value="min">{t("admin.min")}</SelectItem>
-                  <SelectItem value="count">{t("admin.count")}</SelectItem>
-                </SelectContent>
-              </Select>
+                <Select value={aggregationType} onValueChange={setAggregationType}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t("admin.aggregation")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sum">{t("admin.sum")}</SelectItem>
+                    <SelectItem value="average">{t("admin.average")}</SelectItem>
+                    <SelectItem value="max">{t("admin.max")}</SelectItem>
+                    <SelectItem value="min">{t("admin.min")}</SelectItem>
+                    <SelectItem value="count">{t("admin.count")}</SelectItem>
+                  </SelectContent>
+                </Select>
             </div>
           </div>
-          <Tabs defaultValue="daily">
-            <TabsList className="mb-4">
+          <Tabs defaultValue="daily" className="w-full" onValueChange={(value) => setPeriod(value)}>
+            <TabsList className="mb-4 flex flex-wrap gap-2 size-full">
               {periodData.map((p) => (
                 <TabsTrigger key={p.key} value={p.key} onClick={() => setPeriod(p.key)}>{p.label}</TabsTrigger>
               ))}
