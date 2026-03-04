@@ -239,7 +239,7 @@ const Dashboard = () => {
                     <tr key={b.id} className="border-b border-border/50">
                       <td className="py-3 font-medium">{b.customer_name}</td>
                       <td className="py-3 text-muted-foreground">
-                        <a href={`https://wa.me/${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20على%20حجزك`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">
+                        <a href={`https://wa.me/+2${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20على%20حجزك`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">
                           {b.customer_phone}
                         </a>
                       </td>

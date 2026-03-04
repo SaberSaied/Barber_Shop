@@ -460,7 +460,7 @@ const POS = () => {
                   >
                     <p className="font-medium text-sm">{b.customer_name}</p>
                     <p className="text-xs text-muted-foreground">
-                      <a href={`https://wa.me/${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20على%20حجزك`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">{b.customer_phone}</a>
+                      <a href={`https://wa.me/+2${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20على%20حجزك`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">{b.customer_phone}</a>
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {b.booking_date} · #{b.booking_time}
