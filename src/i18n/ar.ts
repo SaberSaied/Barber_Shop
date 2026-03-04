@@ -61,6 +61,14 @@ export const ar = {
     hotShaves: "حلاقة ساخنة",
     modernStyles: "تسريحات عصرية",
     hairArt: "فن الشعر",
+    tel: "الهاتف"
+  },
+  // Works
+  works: {
+    tagline: "بناء مختلف",
+    title: "معرض",
+    titleHighlight: "أعمالنا",
+    subtitle: "عرض لحرفيتنا وأسلوبنا",
   },
   // Booking
   booking: {
@@ -118,7 +126,7 @@ export const ar = {
     message: "ارسل لنا رسالة",
     contactTitle: "اتصل بنا",
     phone: "+1 (555) 123-4567",
-    email: "info@bladeandco.com",
+    email: "karizmabarbershop@gmail.com",
   },
   // Footer
   footer: {
@@ -168,6 +176,11 @@ export const ar = {
     bookingDeleted: "حجز محذوف!",
     searchByNameOrPhone: "ابحث عن طريق الهاتف أو الاسم...",
     casher: "كاشير",
+    sort: "ترتيب",
+    filterBy: "تصفية حسب",
+    booking_date: "تاريخ الحجز",
+    created_at: "تاريخ الإنشاء",
+    customer_name: "اسم العميل",
     // Attendance
     trackAttendance: "تتبع الحضور والانصراف والساعات",
     todayAttendance: "حضور اليوم",

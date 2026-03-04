@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Scissors, Clock, Sparkles, ScanFace, Icon } from "lucide-react";
+import { Scissors, Clock, Sparkles, ScanFace, Icon, Star, Crown } from "lucide-react";
 import {mustache, razorBlade} from "@lucide/lab"
 import { useState } from "react";
 import { useEffect } from "react";
@@ -63,6 +63,8 @@ const Services = () => {
                   {category === 'hair' ? <Scissors className="w-5 h-5 text-primary" /> :
                   category === 'beard' ? <Icon iconNode={mustache} className="w-5 h-5 text-primary" /> :
                   category === 'face' ? <ScanFace className="w-5 h-5 text-primary" /> :
+                  category === 'packages' ? <Sparkles className="w-5 h-5 text-primary" /> :
+                  category === 'vip' ? <Crown className="w-5 h-5 text-primary" /> :
                   <Clock className="w-5 h-5 text-primary" />}
                 </div>
                 <h3 className="font-display text-xl font-semibold capitalize">{t(`admin.${category}`)}</h3>

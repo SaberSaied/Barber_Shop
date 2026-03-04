@@ -53,29 +53,6 @@ const Hero = () => {
               </Button>
             </a>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-wrap gap-8"
-          >
-            {[
-              { icon: Star, label: t("hero.rating"), sub: t("hero.reviews") },
-              { icon: Clock, label: t("hero.openToday"), sub: t("hero.hours") },
-              { icon: Calendar, label: t("hero.established"), sub: t("hero.years") },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">{item.sub}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </div>
     </section>

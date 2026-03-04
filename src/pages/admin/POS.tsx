@@ -75,7 +75,6 @@ const POS = () => {
   const [discount, setDiscount] = useState(0);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [bills, setBills] = useState<Bill[]>([]);
   const [loadingBills, setLoadingBills] = useState(true);
   const [allServices, setAllServices] = useState<ServiceOption[]>([]);
@@ -89,6 +88,7 @@ const POS = () => {
   const [sortConfig, setSortConfig] = useState<{ key: 'created_at' | 'total' | 'barber_id'; direction: SortDirection }>({ key: 'created_at', direction: 'desc' });
   const [groupBy, setGroupBy] = useState<string>("");
   const [bookingSearch, setBookingSearch] = useState("");
+  const [period, setPeriod] = useState<string>("daily");
   const now = new Date();
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: startOfWeek(now, { weekStartsOn: 1 }),
@@ -218,12 +218,6 @@ const POS = () => {
       setEditingBill(null);
       toast({ title: t("admin.billUpdated") });
     }
-  };
-
-  const addManualService = (srv: ServiceOption) => {
-    const name = i18n.language === "ar" ? srv.name_ar : srv.name_en;
-    setCart(prev => [...prev, { id: srv.id, name, price: Number(srv.price) }]);
-    setSelectedBookingId(null);
   };
 
   const handleAddManualBill = () => {
@@ -436,16 +430,6 @@ const POS = () => {
     }
   };
 
-  const editBooking = async (bookingId: string) => {
-    const { data, error } = await supabase.from("bookings").select().eq("id", bookingId).single();
-    if (error) {
-      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
-    } else {
-      setSelectedBookingId(bookingId);
-      setSelectedBooking(data as any);
-    }
-  }
-
 
   return (
     <AdminLayout>
@@ -457,18 +441,17 @@ const POS = () => {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Pending Bookings */}
-          <div className="lg:col-span-2 h-[50vh] overflow-y-scroll">
+          <div className="lg:col-span-2 h-[50vh] overflow-y-scroll px-4">
             <h2 className="font-display text-lg font-semibold mb-4">{t("admin.pendingBookings")}</h2>
-            <Input
-              placeholder={t("admin.searchByNameOrPhone")}
-              value={bookingSearch}
-              onChange={(e) => setBookingSearch(e.target.value)}
-              className="mb-4"
-            />
+              <Input
+                placeholder={t("admin.searchByNameOrPhone")}
+                value={bookingSearch}
+                onChange={(e) => setBookingSearch(e.target.value)}
+              />
             {filteredBookings.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">{t("admin.noBookings")}</p>
             ) : (
-              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 mt-4">
                 {filteredBookings.map((b) => (
                   <button
                     key={b.id}
@@ -476,7 +459,9 @@ const POS = () => {
                     className={`glass-card rounded-xl p-4 text-start transition-colors ${selectedBookingId === b.id ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/30"}`}
                   >
                     <p className="font-medium text-sm">{b.customer_name}</p>
-                    <p className="text-xs text-muted-foreground">{b.customer_phone}</p>
+                    <p className="text-xs text-muted-foreground">
+                      <a href={`https://wa.me/${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20على%20حجزك`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">{b.customer_phone}</a>
+                    </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {b.booking_date} · #{b.booking_time}
                     </p>
@@ -568,42 +553,44 @@ const POS = () => {
 
           <div className="flex justify-between items-center mb-4 gap-4">
             <div className="flex items-center gap-4">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="date"
-                    variant={"outline"}
-                    className={cn(
-                      "w-[300px] justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date?.from ? (
-                      date.to ? (
-                        <>
-                          {format(date.from, "LLL dd, y")} -{" "}
-                          {format(date.to, "LLL dd, y")}
-                        </>
+              {(period === "custom") && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant={"outline"}
+                      className={cn(
+                        "w-[300px] justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date?.from ? (
+                        date.to ? (
+                          <>
+                            {format(date.from, "LLL dd, y")} -{" "}
+                            {format(date.to, "LLL dd, y")}
+                          </>
+                        ) : (
+                          format(date.from, "LLL dd, y")
+                        )
                       ) : (
-                        format(date.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>{t("admin.pickDate")}</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={date?.from}
-                    selected={date}
-                    onSelect={setDate}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
+                        <span>{t("admin.pickDate")}</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={date?.from}
+                      selected={date}
+                      onSelect={setDate}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
               <Input
                 placeholder={t("admin.filterByItemName")}
                 value={nameFilter}
@@ -640,7 +627,7 @@ const POS = () => {
           <Tabs defaultValue="daily">
             <TabsList className="mb-4">
               {periodData.map((p) => (
-                <TabsTrigger key={p.key} value={p.key}>{p.label}</TabsTrigger>
+                <TabsTrigger key={p.key} value={p.key} onClick={() => setPeriod(p.key)}>{p.label}</TabsTrigger>
               ))}
             </TabsList>
             {periodData.map((p) => (

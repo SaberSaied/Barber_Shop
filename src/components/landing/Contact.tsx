@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { MapPin, Phone, MessageCircle, Instagram, Facebook } from "lucide-react";
+import { SiTiktok } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 
@@ -33,7 +34,7 @@ const Contact = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="glass-card rounded-xl p-6 text-center"
+              className="glass-card rounded-xl p-6 text-center hover:border-border hover:border-primary hover:translate-y-5"
             >
               <a href={item.link} target="_blank" rel="noopener noreferrer">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -54,15 +55,24 @@ const Contact = () => {
           viewport={{ once: true }}
           className="flex justify-center gap-4 mt-12"
         >
-          <Button variant="outline" size="icon" className="rounded-full border-border hover:bg-transparent hover:border-green-700 hover:text-green-700">
-            <MessageCircle className="w-5 h-5" />
-          </Button>
-          <Button variant="outline" size="icon" className="rounded-full border-border hover:bg-transparent hover:border-pink-500 hover:text-pink-500">
+          <a href="https://tiktok.com/@karizmabarbershop"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:bg-[#0b000a] w-8 h-8 rounded-md flex items-center justify-center text-white">
+              <SiTiktok className="w-5 h-5" />
+          </a>
+          <a href="https://www.instagram.com/karzimabarber?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:bg-gradient-to-tl hover:from-[#f58529] hover:via-[#dd2a7b] hover:to-[#8134af] w-8 h-8 rounded-md flex items-center justify-center">
             <Instagram className="w-5 h-5" />
-          </Button>
-          <Button variant="outline" size="icon" className="rounded-full border-border hover:bg-transparent hover:border-blue-700 hover:text-blue-700">
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61586418576848"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:bg-blue-900 w-8 h-8 rounded-md flex items-center justify-center">
             <Facebook className="w-5 h-5" />
-          </Button>
+          </a>
         </motion.div>
       </div>
     </section>

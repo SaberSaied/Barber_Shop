@@ -11,14 +11,16 @@ import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { adham, bogy, gedo } from "@/assets";
 
-const MAX_CUSTOMERS_PER_BARBER = 15;
+const MAX_CUSTOMERS_PER_BARBER = 30;
 
 interface ServiceOption {
   id: string;
   name_en: string;
   name_ar: string;
   price: number;
+  category: string;
 }
 
 interface BarberOption {
@@ -35,6 +37,7 @@ const BookingSection = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [services, setServices] = useState<ServiceOption[]>([]);
+  const [groupedServices, setGroupedServices] = useState<Record<string, ServiceOption[]>>({});
   const [barbers, setBarbers] = useState<BarberOption[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -53,10 +56,22 @@ const BookingSection = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [srvRes, empRes] = await Promise.all([
-        supabase.from("services").select("id, name_en, name_ar, price").eq("is_active", true),
+        supabase.from("services").select("id, name_en, name_ar, price, category").eq("is_active", true),
         supabase.from("employees").select("*").eq("is_active", true).eq("role", "barber"),
       ]);
-      if (srvRes.data) setServices(srvRes.data);
+      if (srvRes.data) {
+        const servicesData = srvRes.data as ServiceOption[];
+        setServices(servicesData);
+        const grouped = servicesData.reduce((acc, service) => {
+          const category = service.category || 'Uncategorized';
+          if (!acc[category]) {
+            acc[category] = [];
+          }
+          acc[category].push(service);
+          return acc;
+        }, {} as Record<string, ServiceOption[]>);
+        setGroupedServices(grouped);
+      }
       if (empRes.data) setBarbers(empRes.data as BarberOption[]);
     };
     fetchData();
@@ -265,34 +280,41 @@ const BookingSection = () => {
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-foreground">{t("booking.step2Title")}</h3>
                   <p className="text-sm text-muted-foreground">{t("booking.selectMultiple")}</p>
-                  <div className="grid gap-3">
-                    {services.map((s) => {
-                      const selected = selectedServices.includes(s.id);
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => toggleService(s.id)}
-                          className={cn(
-                            "flex items-center justify-between p-4 rounded-lg border-2 transition-all text-start",
-                            selected
-                              ? "border-primary bg-primary/10"
-                              : "border-border bg-secondary hover:border-primary/50"
-                          )}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
-                              selected ? "bg-primary border-primary" : "border-muted-foreground"
-                            )}>
-                              {selected && <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground" />}
-                            </div>
-                            <span className="font-medium text-foreground">{getServiceName(s)}</span>
-                          </div>
-                          <span className="text-primary font-semibold">{s.price} {t("booking.price_mark")}</span>
-                        </button>
-                      );
-                    })}
+                  <div className="space-y-4">
+                    {Object.entries(groupedServices).map(([category, servicesInCategory]) => (
+                      <div key={category}>
+                        <h4 className="text-lg font-semibold text-primary mb-2">{t(`admin.${category}`)}</h4>
+                        <div className="grid gap-3">
+                          {servicesInCategory.map((s) => {
+                            const selected = selectedServices.includes(s.id);
+                            return (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => toggleService(s.id)}
+                                className={cn(
+                                  "flex items-center justify-between p-4 rounded-lg border-2 transition-all text-start",
+                                  selected
+                                    ? "border-primary bg-primary/10"
+                                    : "border-border bg-secondary hover:border-primary/50"
+                                )}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={cn(
+                                    "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                                    selected ? "bg-primary border-primary" : "border-muted-foreground"
+                                  )}>
+                                    {selected && <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground" />}
+                                  </div>
+                                  <span className="font-medium text-foreground">{getServiceName(s)}</span>
+                                </div>
+                                <span className="text-primary font-semibold">{s.price} {t("booking.price_mark")}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                   {selectedServices.length > 0 && (
                     <div className="flex justify-between text-sm font-medium pt-2 border-t border-border">
@@ -353,7 +375,11 @@ const BookingSection = () => {
                             "w-12 h-12 rounded-full bg-muted flex items-center justify-center",
                             selected && "bg-primary/20"
                           )}>
-                            <UserCheck className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />
+                            {getBarberName(b).toLowerCase().includes("bogy") ? 
+                              <img src={bogy} alt="B" className="w-full h-full object-cover rounded-full" /> :
+                              getBarberName(b).toLowerCase().includes("gedo") ? <img src={gedo} alt="G" className="w-full h-full object-cover rounded-full" />
+                              : getBarberName(b).toLowerCase().includes("adham") ? <img src={adham} alt="A" className="w-full h-full object-cover rounded-full" />
+                              :<UserCheck className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />}
                           </div>
                           <span className="font-medium text-foreground">{getBarberName(b)}</span>
                         </button>

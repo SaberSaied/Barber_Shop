@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { adham, bogy, gedo } from "@/assets";
 
 interface Employee {
   id: string;
@@ -10,6 +11,7 @@ interface Employee {
   name_ar: string | null;
   role: string;
   schedule: string | null;
+  phone: string | null;
   image_url: string | null;
 }
 
@@ -19,7 +21,7 @@ const Barbers = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("employees").select("id, name, name_ar, role, schedule").eq("is_active", true).eq("role", "barber");
+      const { data } = await supabase.from("employees").select("id, name, name_ar, role, schedule, phone").eq("is_active", true).eq("role", "barber");
       if (data) setBarbers(data as Employee[]);
     };
     fetch();
@@ -59,9 +61,11 @@ const Barbers = () => {
               className="group"
             >
               <div className="relative overflow-hidden rounded-xl mb-4 aspect-[4/5] bg-secondary flex items-center justify-center">
-                {barber.image_url ? (
-                  <img src={barber.image_url} alt={barber.name} className="w-full h-full object-cover" />
-                ) : (
+                {barber.name.toLowerCase().includes("bogy") ? 
+                  <img src={bogy} alt="B" className="w-full h-full object-cover" /> :
+                  barber.name.toLowerCase().includes("gedo") ? <img src={gedo} alt="G" className="w-full h-full object-cover" />
+                  : barber.name.toLowerCase().includes("adham") ? <img src={adham} alt="A" className="w-full h-full object-cover" />
+                  : (
                   <UserCheck className="w-20 h-20 text-muted-foreground/30" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
@@ -72,6 +76,11 @@ const Barbers = () => {
               {barber.schedule && (
                 <span className="text-xs px-3 py-1 rounded-full bg-secondary text-secondary-foreground">
                   {barber.schedule}
+                </span>
+              )}
+              {barber.phone && (
+                <span className="text-xs px-3 py-1 rounded-full bg-secondary text-secondary-foreground block w-fit mt-2">
+                  {t("barbers.tel")}: {barber.phone}
                 </span>
               )}
             </motion.div>

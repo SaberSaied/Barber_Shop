@@ -5,6 +5,7 @@ import Barbers from "@/components/landing/Barbers";
 import BookingSection from "@/components/landing/BookingSection";
 import Contact from "@/components/landing/Contact";
 import Footer from "@/components/landing/Footer";
+import Works from "@/components/landing/Works";
 
 const Index = () => {
   return (
@@ -13,6 +14,7 @@ const Index = () => {
       <Hero />
       <Services />
       <Barbers />
+      <Works />
       <BookingSection />
       <Contact />
       <Footer />

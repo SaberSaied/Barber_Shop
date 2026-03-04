@@ -61,6 +61,14 @@ export const en = {
     hotShaves: "Hot Shaves",
     modernStyles: "Modern Styles",
     hairArt: "Hair Art",
+    tel: "Phone",
+  },
+  // Works
+  works: {
+    tagline: "Built Different",
+    title: "Gallery Of",
+    titleHighlight: "Our Works",
+    subtitle: "Bold ideas, clean design, and digital experiences made to stand out.",
   },
   // Booking
   booking: {
@@ -113,10 +121,10 @@ export const en = {
     title: "Visit",
     titleHighlight: "Us",
     location: "Location",
-    address1: "El Madina El Monwara, Front: Plaza Cafè",
+    address1: "El Madina El Monwara, Front Plaza Cafè",
     address2: "Batn El Jebel Street",
     message: "Send us a message",
-    email: "info@bladeandco.com",
+    email: "karizmabarbershop@gmail.com",
     contactTitle: "Call us",
     phone: "+1 (555) 123-4567",
   },
@@ -168,6 +176,11 @@ export const en = {
     bookingDeleted: "Booking Deleted!",
     searchByNameOrPhone: "Search by name or phone...",
     casher: "Casher",
+    sort: "Sort",
+    filterBy: "Filter By",
+    booking_date: "Booking Date",
+    created_at: "Created At",
+    customer_name: "Customer Name",
     // Attendance
     trackAttendance: "Track clock-ins, shifts, and hours",
     todayAttendance: "Today's Attendance",

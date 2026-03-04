@@ -1,0 +1,9 @@
+export { default as bogy } from "./bogy.jpg";
+export { default as gedo } from "./gedo.jpg";
+export { default as adham } from "./adham.jpg";
+export { default as works1 } from "./works1.jpg";
+export { default as works2 } from "./works2.jpg";
+export { default as works3 } from "./works3.jpg";
+export { default as works4 } from "./works4.jpg";
+export { default as works5 } from "./works5.jpg";
+export { default as works6 } from "./works6.jpg";
