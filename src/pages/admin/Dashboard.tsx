@@ -221,17 +221,17 @@ const Dashboard = () => {
             <p className="text-muted-foreground text-center py-8">{t("admin.noBookings")}</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm text-center">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.customer")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("booking.phone")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.service")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.barber")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("booking.date")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">#</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.status")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.customer")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("booking.phone")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.service")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.barber")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("booking.date")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">#</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.status")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -239,7 +239,7 @@ const Dashboard = () => {
                     <tr key={b.id} className="border-b border-border/50">
                       <td className="py-3 font-medium">{b.customer_name}</td>
                       <td className="py-3 text-muted-foreground">
-                        <a href={`https://wa.me/+2${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20على%20حجزك`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">
+                        <a href={`https://wa.me/+2${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20من%20دلوقتي%20على%20حجز%20حلاقتك%20تفضل%20بزيارتنا`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">
                           {b.customer_phone}
                         </a>
                       </td>

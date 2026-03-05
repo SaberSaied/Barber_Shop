@@ -55,19 +55,19 @@ const Contact = () => {
           viewport={{ once: true }}
           className="flex justify-center gap-4 mt-12"
         >
-          <a href="https://tiktok.com/@karizmabarbershop"
+          <a href="https://tiktok.com/@karzimabarbershop"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:bg-[#0b000a] w-8 h-8 rounded-md flex items-center justify-center text-white">
               <SiTiktok className="w-5 h-5" />
           </a>
-          <a href="https://www.instagram.com/karzimabarber?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+          <a href="https://www.instagram.com/karizma.barber.shop1/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:bg-gradient-to-tl hover:from-[#f58529] hover:via-[#dd2a7b] hover:to-[#8134af] w-8 h-8 rounded-md flex items-center justify-center">
+            className="hover:bg-gradient-to-t hover:from-[#f5b829] hover:via-[#dd2a7b] hover:to-[#561d78] w-8 h-8 rounded-md flex items-center justify-center">
             <Instagram className="w-5 h-5" />
           </a>
-          <a href="https://www.facebook.com/profile.php?id=61586418576848"
+          <a href="https://www.facebook.com/share/1HW3yQNWhX/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:bg-blue-900 w-8 h-8 rounded-md flex items-center justify-center">

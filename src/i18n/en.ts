@@ -222,6 +222,8 @@ export const en = {
     face: "Face",
     packages: "Packages",
     vip: "VIP",
+    serviceName: "Service Name",
+    serviceNameAr: "Service Name (Arabic)",
     // Customers
     customerProfiles: "Customer profiles and visit history",
     searchCustomers: "Search customers...",

@@ -460,7 +460,7 @@ const POS = () => {
                   >
                     <p className="font-medium text-sm">{b.customer_name}</p>
                     <p className="text-xs text-muted-foreground">
-                      <a href={`https://wa.me/+2${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20على%20حجزك`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">{b.customer_phone}</a>
+                      <a href={`https://wa.me/+2${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20من%20دلوقتي%20على%20حجز%20حلاقتك%20تفضل%20بزيارتنا`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">{b.customer_phone}</a>
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {b.booking_date} · #{b.booking_time}
@@ -634,24 +634,24 @@ const POS = () => {
                   <p className="text-muted-foreground text-center py-4">{t("admin.noBills")}</p>
                 ) : (
                   <div className="overflow-x-auto max-h-80 overflow-y-scroll">
-                    <table className="w-full text-sm">
-                      <thead className="sticky top-0 bg-background">
+                    <table className="w-full text-sm text-center">
+                      <thead className="sticky top-0 bg-background text-center">
                         <tr className="border-b border-border">
-                          <th className="text-start py-2 text-muted-foreground font-medium">#</th>
-                          <th className="text-start py-2 text-muted-foreground font-medium cursor-pointer hover:text-foreground" onClick={() => requestSort('created_at')}>
-                            {t("admin.dateTime")} {renderSortArrow('created_at')}
+                          <th className="p-2 text-muted-foreground font-medium">#</th>
+                          <th className="p-2 text-muted-foreground font-medium cursor-pointer hover:text-foreground" onClick={() => requestSort('created_at')}>
+                            <div className="flex items-center">{t("admin.dateTime")} {renderSortArrow('created_at')}</div>
                           </th>
-                          <th className="text-start py-2 text-muted-foreground font-medium">{t("admin.items")}</th>
-                          <th className="text-start py-2 text-muted-foreground font-medium cursor-pointer hover:text-foreground" onClick={() => requestSort('barber_id')}>
-                            {t("admin.barber")} {renderSortArrow('barber_id')}
+                          <th className="p-2 text-muted-foreground font-medium">{t("admin.items")}</th>
+                          <th className="p-2 text-muted-foreground font-medium cursor-pointer hover:text-foreground" onClick={() => requestSort('barber_id')}>
+                            <div className="flex items-center">{t("admin.barber")} {renderSortArrow('barber_id')}</div>
                           </th>
-                          <th className="text-start py-2 text-muted-foreground font-medium">{t("admin.subtotal")}</th>
-                          <th className="text-start py-2 text-muted-foreground font-medium">{t("admin.discount")}</th>
-                          <th className="text-start py-2 text-muted-foreground font-medium cursor-pointer hover:text-foreground" onClick={() => requestSort('total')}>
-                            {t("admin.total")} {renderSortArrow('total')}
+                          <th className="p-2 text-muted-foreground font-medium">{t("admin.subtotal")}</th>
+                          <th className="p-2 text-muted-foreground font-medium">{t("admin.discount")}</th>
+                          <th className="p-2 text-muted-foreground font-medium cursor-pointer hover:text-foreground" onClick={() => requestSort('total')}>
+                            <div className="flex items-center">{t("admin.total")} {renderSortArrow('total')}</div>
                           </th>
-                          <th className="text-start py-2 text-muted-foreground font-medium">{t("admin.payment")}</th>
-                          <th className="text-start py-2 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                          <th className="p-2 text-muted-foreground font-medium">{t("admin.payment")}</th>
+                          <th className="p-2 text-muted-foreground font-medium">{t("admin.actions")}</th>
                         </tr>
                       </thead>
                       <tbody>

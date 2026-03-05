@@ -182,23 +182,26 @@ const ServicesManagement = () => {
             <p className="text-muted-foreground text-center py-8">{t("admin.noServices")}</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm overflow-auto">
+              <table className="w-full text-sm overflow-auto text-center">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_en')}>
-                      <div className="flex items-center">{t("admin.service")} {renderSortArrow('name_en')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_en')}>
+                      <div className="flex items-center">{t("admin.serviceName")} {renderSortArrow('name_en')}</div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('category')}>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_ar')}>
+                      <div className="flex items-center">{t("admin.serviceNameAr")} {renderSortArrow('name_ar')}</div>
+                    </th>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('category')}>
                       <div className="flex items-center">{t("admin.category")} {renderSortArrow('category')}</div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('price')}>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('price')}>
                       <div className="flex items-center">{t("admin.price")} {renderSortArrow('price')}</div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('duration_minutes')}>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('duration_minutes')}>
                       <div className="flex items-center">{t("admin.duration")} {renderSortArrow('duration_minutes')}</div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.active")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.active")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -212,7 +215,8 @@ const ServicesManagement = () => {
                         </tr>
                         {items.map((s) => (
                           <tr key={s.id} className="border-b border-border/50">
-                            <td className="py-3 font-medium">{s.name_en} / {s.name_ar}</td>
+                            <td className="py-3 font-medium">{s.name_en}</td>
+                            <td className="py-3 font-medium">{s.name_ar}</td>
                             <td className="py-3">
                               <span className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground">{categoryLabel(s.category)}</span>
                             </td>
@@ -236,7 +240,8 @@ const ServicesManagement = () => {
                   ) : (
                     (filteredServices as Service[]).map((s) => (
                       <tr key={s.id} className="border-b border-border/50">
-                        <td className="py-3 font-medium">{s.name_en} / {s.name_ar}</td>
+                        <td className="py-3 font-medium">{s.name_en}</td>
+                        <td className="py-3 font-medium">{s.name_ar}</td>
                         <td className="py-3">
                           <span className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground">{categoryLabel(s.category)}</span>
                         </td>

@@ -375,10 +375,12 @@ const BookingSection = () => {
                             "w-12 h-12 rounded-full bg-muted flex items-center justify-center",
                             selected && "bg-primary/20"
                           )}>
-                            {getBarberName(b).toLowerCase().includes("bogy") ? 
+                            {(getBarberName(b).toLowerCase().includes("bogy") || getBarberName(b).includes("بوجي")) ? 
                               <img src={bogy} alt="B" className="w-full h-full object-cover rounded-full" /> :
-                              getBarberName(b).toLowerCase().includes("gedo") ? <img src={gedo} alt="G" className="w-full h-full object-cover rounded-full" />
-                              : getBarberName(b).toLowerCase().includes("adham") ? <img src={adham} alt="A" className="w-full h-full object-cover rounded-full" />
+                              (getBarberName(b).toLowerCase().includes("gedo") || getBarberName(b).includes("جدو")) ? 
+                              <img src={gedo} alt="G" className="w-full h-full object-cover rounded-full" /> :
+                              (getBarberName(b).toLowerCase().includes("adham") || getBarberName(b).includes("دهم")) ?
+                              <img src={adham} alt="A" className="w-full h-full object-cover rounded-full" />
                               :<UserCheck className={cn("w-6 h-6", selected ? "text-primary" : "text-muted-foreground")} />}
                           </div>
                           <span className="font-medium text-foreground">{getBarberName(b)}</span>

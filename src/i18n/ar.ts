@@ -222,6 +222,8 @@ export const ar = {
     face: "وجه",
     packages: "باقات",
     vip: "VIP",
+    serviceName: "اسم الخدمة",
+    serviceNameAr: "اسم الخدمة (بالعربي)",
     // Customers
     customerProfiles: "ملفات العملاء وسجل الزيارات",
     searchCustomers: "البحث عن عملاء...",

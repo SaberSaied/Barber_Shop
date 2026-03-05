@@ -12,7 +12,7 @@ const works = [
 ];
 
 const Works = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const duplicatedWorks = [...works, ...works];
 
@@ -36,16 +36,16 @@ const Works = () => {
         <motion.div
           className="flex gap-4"
           animate={{
-            x: ["-100%", "0%"],
+            x: ["0px", i18n.language === "en" ? "-1632px" : "1632px"],
             transition: {
               ease: "linear",
-              duration: 20,
+              duration: 10,
               repeat: Infinity,
             },
           }}
         >
           {duplicatedWorks.map((work, index) => (
-            <div key={index} className="flex-shrink-0 w-64 md:w-80 h-[400px]">
+            <div key={index} className="flex-shrink-0 w-64 h-[400px]">
               <img
                 src={work.src}
                 alt={work.alt}

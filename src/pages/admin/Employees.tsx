@@ -105,7 +105,7 @@ const Employees = () => {
   };
 
   const renderSortArrow = (key: keyof Employee) => {
-    if (sortConfig.key !== key) return <ArrowUpDown className="w-4 h-4 ml-2 opacity-20" />;
+    if (sortConfig.key !== key) return <ArrowUpDown className="w-4 h-4 opacity-50" />;
     return sortConfig.direction === 'asc' ? '▲' : '▼';
   };
   const openAdd = () => { setEditingId(null); setForm(emptyForm); setDialogOpen(true); };
@@ -189,32 +189,32 @@ const Employees = () => {
             <p className="text-muted-foreground text-center py-8">{t("admin.noData")}</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm text-center">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.image")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name')}>
-                      <div className="flex items-center">{t("admin.employeeName")} {renderSortArrow('name')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.image")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.employeeName")} <span>{renderSortArrow('name')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_ar')}>
-                      <div className="flex items-center">{t("admin.nameAr")} {renderSortArrow('name_ar')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_ar')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.nameAr")} <span>{renderSortArrow('name_ar')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('role')}>
-                      <div className="flex items-center">{t("admin.role")} {renderSortArrow('role')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('role')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.role")} <span>{renderSortArrow('role')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('phone')}>
-                      <div className="flex items-center">{t("booking.phone")} {renderSortArrow('phone')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('phone')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("booking.phone")} <span>{renderSortArrow('phone')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('salary')}>
-                      <div className="flex items-center">{t("admin.salary")} {renderSortArrow('salary')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('salary')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.salary")} <span>{renderSortArrow('salary')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('schedule')}>
-                      <div className="flex items-center">{t("admin.schedule")} {renderSortArrow('schedule')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('schedule')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.schedule")} <span>{renderSortArrow('schedule')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('absent_day')}>
-                      <div className="flex items-center">{t("admin.absent_day")} {renderSortArrow('absent_day')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('absent_day')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.absent_day")} <span>{renderSortArrow('absent_day')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>

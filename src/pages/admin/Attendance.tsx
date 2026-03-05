@@ -116,7 +116,7 @@ const Attendance = () => {
   };
 
   const renderSortArrow = (key: keyof AttendanceRecord) => {
-    if (sortConfig.key !== key) return <ArrowUpDown className="w-4 h-4 ml-2 opacity-20" />;
+    if (sortConfig.key !== key) return <ArrowUpDown className="w-4 h-4 opacity-50" />;
     return sortConfig.direction === 'asc' ? '▲' : '▼';
   };
 
@@ -232,26 +232,26 @@ const Attendance = () => {
             <p className="text-muted-foreground text-center py-8">{t("admin.noData")}</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm text-center">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('employee_id')}>
-                      <div className="flex items-center">{t("admin.employee")} {renderSortArrow('employee_id')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('employee_id')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.employee")} <span>{renderSortArrow('employee_id')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('date')}>
-                      <div className="flex items-center">{t("booking.date")} {renderSortArrow('date')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('date')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("booking.date")} <span>{renderSortArrow('date')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('clock_in')}>
-                      <div className="flex items-center">{t("admin.clockIn")} {renderSortArrow('clock_in')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('clock_in')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.clockIn")} <span>{renderSortArrow('clock_in')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('clock_out')}>
-                      <div className="flex items-center">{t("admin.clockOut")} {renderSortArrow('clock_out')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('clock_out')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.clockOut")} <span>{renderSortArrow('clock_out')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('status')}>
-                      <div className="flex items-center">{t("admin.status")} {renderSortArrow('status')}</div>
+                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('status')}>
+                      <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.status")} <span>{renderSortArrow('status')}</span></div>
                     </th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.notes")}</th>
-                    <th className="text-start py-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.notes")}</th>
+                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
