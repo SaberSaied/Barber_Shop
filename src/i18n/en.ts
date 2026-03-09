@@ -108,6 +108,7 @@ export const en = {
     queueHint: "Pick an available number for {{barber}} on your selected date",
     available: "Available",
     taken: "Taken",
+    number: "Number",
   },
   // Contact
   contact: {
@@ -118,7 +119,7 @@ export const en = {
     address1: "El Madina El Monwara, Front Plaza Cafè",
     address2: "Batn El Jebel Street",
     message: "Send us a message",
-    email: "karizmabarbershop@gmail.com",
+    email: "karzimabarbershop@gmail.com",
     contactTitle: "Call us",
     phone: "+20 122 505 7659",
   },
@@ -153,6 +154,11 @@ export const en = {
     pending: "Pending",
     topServices: "Top Services",
     bookings: "bookings",
+    editBooking: "Edit Booking",
+    saveChanges: "Save Changes",
+    UpdateBooking: "Update Booking",
+    bookingUpdated: "Booking Updated!",
+    uncategorized: "Uncategorized",
     // POS
     pointOfSale: "Point of Sale",
     posSubtitle: "Select a pending booking to process payment",
@@ -160,6 +166,8 @@ export const en = {
     selectBookingToPay: "Select a booking to pay",
     quickAdd: "Quick Add",
     cart: "Cart",
+    select: "Select",
+    selected: "Selected",
     noItems: "No items added yet",
     subtotal: "Subtotal",
     discount: "Discount",
@@ -175,6 +183,7 @@ export const en = {
     booking_date: "Booking Date",
     created_at: "Created At",
     customer_name: "Customer Name",
+    editBill: "Edit Bill",
     // Attendance
     trackAttendance: "Track clock-ins, shifts, and hours",
     todayAttendance: "Today's Attendance",

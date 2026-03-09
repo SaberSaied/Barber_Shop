@@ -37,7 +37,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <aside className={`transition-transform transform md:translate-x-0 w-64 bg-sidebar border-e border-sidebar-border flex flex-col fixed inset-y-0 start-0 z-40 ${ isOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full" }`}>
+      <aside className={`transition-transform transform md:translate-x-0 w-64 bg-sidebar border-e border-sidebar-border flex flex-col fixed inset-y-0 start-0 z-40 ${ isOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full rtl:md:translate-x-0" }`}>
         <div className="p-6 border-b border-sidebar-border">
           <Link to="/" className="flex items-center gap-2">
             <Scissors className="w-6 h-6 text-sidebar-primary" />

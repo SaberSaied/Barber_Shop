@@ -108,6 +108,7 @@ export const ar = {
     queueHint: "اختر رقم متاح لـ {{barber}} في التاريخ المحدد",
     available: "متاح",
     taken: "محجوز",
+    number: "الرقم",
   },
   // Contact
   contact: {
@@ -120,7 +121,7 @@ export const ar = {
     message: "ارسل لنا رسالة",
     contactTitle: "اتصل بنا",
     phone: "+20 122 505 7659",
-    email: "karizmabarbershop@gmail.com",
+    email: "karzimabarbershop@gmail.com",
   },
   // Footer
   footer: {
@@ -153,6 +154,11 @@ export const ar = {
     pending: "معلق",
     topServices: "أفضل الخدمات",
     bookings: "حجوزات",
+    editBooking: "تعديل الحجز",
+    saveChanges: "حفظ التغييرات",
+    UpdateBooking: "تحديث الحجز",
+    bookingUpdated: "تم تحديث الحجز!",
+    uncategorized: "غير مصنف",
     // POS
     pointOfSale: "نقطة البيع",
     posSubtitle: "اختر حجز معلق لمعالجة الدفع",
@@ -160,6 +166,8 @@ export const ar = {
     selectBookingToPay: "اختر حجز للدفع",
     quickAdd: "إضافة سريعة",
     cart: "السلة",
+    select: "اختر",
+    selected: "محدد",
     noItems: "لم تتم إضافة عناصر بعد",
     subtotal: "المجموع الفرعي",
     discount: "الخصم",
@@ -175,6 +183,7 @@ export const ar = {
     booking_date: "تاريخ الحجز",
     created_at: "تاريخ الإنشاء",
     customer_name: "اسم العميل",
+    editBill: "تعديل الفاتورة",
     // Attendance
     trackAttendance: "تتبع الحضور والانصراف والساعات",
     todayAttendance: "حضور اليوم",

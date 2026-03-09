@@ -49,6 +49,7 @@ interface ServiceOption {
   name_en: string;
   name_ar: string;
   price: number;
+  category: string | null;
 }
 
 interface CartItem {
@@ -111,7 +112,7 @@ const POS = () => {
         .eq("status", "completed")
         .order("created_at", { ascending: false })
         .limit(500),
-      supabase.from("services").select("id, name_en, name_ar, price").eq("is_active", true).order("category"),
+      supabase.from("services").select("id, name_en, name_ar, price, category").eq("is_active", true).order("category"),
       supabase.from("employees").select("id, name, name_ar").eq("role", "barber"),
     ]);
     if (bookRes.data) setBookings(bookRes.data as Booking[]);
@@ -420,6 +421,17 @@ const POS = () => {
   });
 }, [bookings, bookingSearch]);
 
+  const groupedServices = useMemo(() => {
+      return allServices.reduce((acc: Record<string, ServiceOption[]>, service: ServiceOption) => {
+        const category = service.category || t('admin.uncategorized');
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+        acc[category].push(service);
+        return acc;
+      }, {} as Record<string, ServiceOption []>);
+    }, [allServices, t]);
+
   const deleteBooking = async (bookingId: string) => {
     const { error } = await supabase.from("bookings").delete().eq("id", bookingId);
     if (error) {
@@ -455,7 +467,6 @@ const POS = () => {
                 {filteredBookings.map((b) => (
                   <button
                     key={b.id}
-                    onClick={() => selectBooking(b)}
                     className={`glass-card rounded-xl p-4 text-start transition-colors ${selectedBookingId === b.id ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/30"}`}
                   >
                     <p className="font-medium text-sm">{b.customer_name}</p>
@@ -479,6 +490,8 @@ const POS = () => {
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
+                    <Button variant={selectedBookingId === b.id ? `default` : 'outline'} className="w-full mt-3"
+                    onClick={() => selectBooking(b)}>{selectedBookingId === b.id ? t("admin.selected") : t("admin.select")}</Button>
                   </button>
                 ))}
               </div>
@@ -766,25 +779,32 @@ const POS = () => {
             </div>
             <div>
               <label className="text-sm font-medium">{t("admin.services")}</label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {allServices.map((service) => (
-                  <Button
-                    key={service.id}
-                    variant={manualBillServices.includes(service.id) ? "default" : "outline"}
-                    onClick={() => {
-                      setManualBillServices(prev => 
-                        prev.includes(service.id) 
-                          ? prev.filter(id => id !== service.id)
-                          : [...prev, service.id]
-                      );
-                    }}
-                    className="h-auto text-start"
-                  >
-                    <div className="flex flex-col">
-                      <span>{i18n.language === "ar" ? service.name_ar : service.name_en}</span>
-                      <span className="text-xs opacity-70">{service.price} {t("booking.price_mark")}</span>
+              <div className="flex flex-wrap gap-2 max-h-60 overflow-y-scroll mt-2">
+                {Object.entries(groupedServices).map(([category, services]) => (
+                  <div key={category} className="w-full">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{t(`admin.${category}`)}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {services.map((service) => (
+                        <Button
+                          key={service.id}
+                          variant={manualBillServices.includes(service.id) ? "default" : "outline"}
+                          onClick={() => {
+                            setManualBillServices(prev => 
+                              prev.includes(service.id) 
+                                ? prev.filter(id => id !== service.id)
+                                : [...prev, service.id]
+                            );
+                          }}
+                          className="h-auto text-start"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{i18n.language === "ar" ? service.name_ar : service.name_en}</span>
+                            <span className="text-xs opacity-70">{service.price} {t("booking.price_mark")}</span>
+                          </div>
+                        </Button>
+                      ))}
                     </div>
-                  </Button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -814,25 +834,32 @@ const POS = () => {
             </div>
             <div>
               <label className="text-sm font-medium">{t("admin.services")}</label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {allServices.map((service) => (
-                  <Button
-                    key={service.id}
-                    variant={manualBillServices.includes(service.id) ? "default" : "outline"}
-                    onClick={() => {
-                      setManualBillServices(prev => 
-                        prev.includes(service.id) 
-                          ? prev.filter(id => id !== service.id)
-                          : [...prev, service.id]
-                      );
-                    }}
-                    className="h-auto text-start"
-                  >
-                    <div className="flex flex-col">
-                      <span>{i18n.language === "ar" ? service.name_ar : service.name_en}</span>
-                      <span className="text-xs opacity-70">{service.price} {t("booking.price_mark")}</span>
+              <div className="flex flex-wrap gap-2 max-h-60 overflow-y-scroll mt-2">
+                {Object.entries(groupedServices).map(([category, services]) => (
+                  <div key={category} className="w-full">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{t(`admin.${category}`)}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {services.map((service) => (
+                        <Button
+                          key={service.id}
+                          variant={manualBillServices.includes(service.id) ? "default" : "outline"}
+                          onClick={() => {
+                            setManualBillServices(prev => 
+                              prev.includes(service.id) 
+                                ? prev.filter(id => id !== service.id)
+                                : [...prev, service.id]
+                            );
+                          }}
+                          className="h-auto text-start"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{i18n.language === "ar" ? service.name_ar : service.name_en}</span>
+                            <span className="text-xs opacity-70">{service.price} {t("booking.price_mark")}</span>
+                          </div>
+                        </Button>
+                      ))}
                     </div>
-                  </Button>
+                  </div>
                 ))}
               </div>
             </div>

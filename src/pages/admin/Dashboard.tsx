@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { DollarSign, CalendarCheck, TrendingUp, Trash2 } from "lucide-react";
+import { DollarSign, CalendarCheck, TrendingUp, Trash2, Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { format, subDays } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -33,6 +38,7 @@ interface Service {
   name_en: string;
   name_ar: string;
   price: number;
+  category: string;
 }
 
 interface Bill {
@@ -52,20 +58,58 @@ const Dashboard = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     const [bookingsRes, servicesRes, billsRes, empRes] = await Promise.all([
       supabase.from("bookings").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.from("services").select("id, name_en, name_ar, price"),
+      supabase.from("services").select("id, name_en, name_ar, price, category"),
       supabase.from("bills").select("*").eq("status", "completed").order("created_at", { ascending: false }).limit(500),
-      supabase.from("employees" as any).select("id, name, name_ar"),
+      supabase.from("employees" as any).select("id, name, name_ar").eq("role", "barber"),
     ]);
     if (bookingsRes.data) setBookings(bookingsRes.data);
     if (servicesRes.data) setServices(servicesRes.data);
     if (billsRes.data) setBills(billsRes.data as any);
     if (empRes.data) setEmployees(empRes.data as any);
     setLoading(false);
+  };
+
+  const handleEditBooking = (booking: Booking) => {
+    setEditingBooking(booking);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateBooking = async () => {
+    if (!editingBooking) return;
+
+    // The service_id is now derived from the notes field for multi-select
+    const serviceIds = editingBooking.notes ? editingBooking.notes.split(",").map(s => s.trim()) : [];
+
+    const { data, error } = await supabase
+      .from("bookings")
+      .update({
+        customer_name: editingBooking.customer_name,
+        customer_phone: editingBooking.customer_phone,
+        service_id: serviceIds.length > 0 ? serviceIds[0] : null, // Set primary service_id or null
+        barber_preference: editingBooking.barber_preference,
+        booking_date: editingBooking.booking_date,
+        booking_time: editingBooking.booking_time,
+        notes: editingBooking.notes,
+      })
+      .eq("id", editingBooking.id)
+      .select()
+      .single();
+
+    if (error) {
+      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
+    } else {
+      setBookings(bookings.map(b => (b.id === editingBooking.id ? data as Booking : b)));
+      setEditDialogOpen(false);
+      setEditingBooking(null);
+      toast({ title: t("admin.bookingUpdated") });
+    }
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -114,6 +158,17 @@ const Dashboard = () => {
     if (!emp) return "—";
     return i18n.language === "ar" && emp.name_ar ? emp.name_ar : emp.name;
   };
+
+  const groupedServices = useMemo(() => {
+    return services.reduce((acc, service) => {
+      const category = service.category || t('admin.uncategorized');
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(service);
+      return acc;
+    }, {} as Record<string, Service[]>);
+  }, [services, t]);
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const todayBookings = bookings.filter((b) => b.booking_date === todayStr);
@@ -259,7 +314,10 @@ const Dashboard = () => {
                           </SelectContent>
                         </Select>
                       </td>
-                      <td className="py-3">
+                      <td className="py-3 flex items-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-green-500 hover:text-white hover:bg-green-500" onClick={() => handleEditBooking(b)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-white hover:bg-destructive" onClick={() => deleteBooking(b.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -271,6 +329,86 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{t("admin.editBooking")}</DialogTitle>
+            </DialogHeader>
+            {editingBooking && (
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">{t("admin.customer")}</Label>
+                  <Input id="name" value={editingBooking.customer_name} onChange={(e) => setEditingBooking({...editingBooking, customer_name: e.target.value})} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="phone" className="text-right">{t("booking.phone")}</Label>
+                  <Input id="phone" value={editingBooking.customer_phone} onChange={(e) => setEditingBooking({...editingBooking, customer_phone: e.target.value})} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label htmlFor="service" className="text-right pt-2">{t("admin.service")}</Label>
+                  <ScrollArea className="h-48 w-full rounded-md border col-span-3">
+                    <div className="p-4">
+                      {Object.entries(groupedServices).map(([category, servicesInCategory]) => (
+                        <div key={category} className="mb-4">
+                          <h4 className="font-medium text-sm mb-2 text-primary">{t(`admin.${category}`)}</h4>
+                          {servicesInCategory.map(s => {
+                            const serviceIds = editingBooking.notes ? editingBooking.notes.split(",").map(id => id.trim()) : [];
+                            const isChecked = serviceIds.includes(s.id);
+                            return (
+                              <div key={s.id} className="flex items-center space-x-2 mb-2">
+                                <Checkbox 
+                                  id={s.id}
+                                  checked={isChecked}
+                                  onCheckedChange={(checked) => {
+                                    const currentIds = editingBooking.notes ? editingBooking.notes.split(",").map(id => id.trim()) : [];
+                                    let newIds;
+                                    if (checked) {
+                                      newIds = [...currentIds, s.id];
+                                    } else {
+                                      newIds = currentIds.filter(id => id !== s.id);
+                                    }
+                                    setEditingBooking({...editingBooking, notes: newIds.join(", ")});
+                                  }}
+                                />
+                                <label htmlFor={s.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  {i18n.language === 'ar' ? s.name_ar : s.name_en}
+                                </label>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="barber" className="text-right">{t("admin.barber")}</Label>
+                  <Select value={editingBooking.barber_preference || ''} onValueChange={(value) => setEditingBooking({...editingBooking, barber_preference: value})}>
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder={t("booking.selectBarber")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map(e => <SelectItem key={e.id} value={e.id}>{i18n.language === 'ar' ? e.name_ar : e.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="date" className="text-right">{t("booking.date")}</Label>
+                  <Input id="date" type="date" value={editingBooking.booking_date} onChange={(e) => setEditingBooking({...editingBooking, booking_date: e.target.value})} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="number" className="text-right">{t("booking.number")}</Label>
+                  <Input id="number" type="number" value={editingBooking.booking_time} onChange={(e) => setEditingBooking({...editingBooking, booking_time: e.target.value})} className="col-span-3" />
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button onClick={handleUpdateBooking}>{t("admin.save")}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
       </div>
     </AdminLayout>
   );
