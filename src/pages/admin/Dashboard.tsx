@@ -275,18 +275,18 @@ const Dashboard = () => {
           ) : bookings.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">{t("admin.noBookings")}</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto h-40">
               <table className="w-full text-sm text-center">
-                <thead>
+                <thead className="bg-[#111] sticky top-0 z-10">
                   <tr className="border-b border-border">
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.customer")}</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("booking.phone")}</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.service")}</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.barber")}</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("booking.date")}</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">#</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.status")}</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("admin.customer")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("booking.phone")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("admin.service")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("admin.barber")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("booking.date")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">#</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("admin.status")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>

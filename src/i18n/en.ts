@@ -99,8 +99,8 @@ export const en = {
     back: "Back",
     next: "Next",
     step1: "Info",
-    step2: "Services",
-    step3: "Date",
+    step2: "Date",
+    step3: "Services",
     step4: "Barber",
     step5: "Queue",
     step1Title: "Your Information",
@@ -113,6 +113,7 @@ export const en = {
     taken: "Taken",
     number: "Number",
     meessageAfterBooking: "Thank you for booking with us! We look forward to giving you an amazing experience. We will send you a message before your services.",
+    eidMessage: "EID fee will be added to the total price.",
   },
   // Contact
   contact: {
@@ -157,7 +158,7 @@ export const en = {
     inProgress: "In Progress",
     pending: "Pending",
     topServices: "Top Services",
-    bookings: "bookings",
+    bookings: "Bookings",
     editBooking: "Edit Booking",
     saveChanges: "Save Changes",
     UpdateBooking: "Update Booking",
@@ -244,6 +245,10 @@ export const en = {
     vip: "VIP",
     serviceName: "Service Name",
     serviceNameAr: "Service Name (Arabic)",
+    other: "Other",
+    eidFee: "Eid's Booking Fee",
+    note: "Note (English)",
+    note_ar: "Note (Arabic)",
     // Customers
     customerProfiles: "Customer profiles and visit history",
     searchCustomers: "Search customers...",
@@ -310,6 +315,12 @@ export const en = {
     canceled: "Canceled",
     cancelBooking: "Cancel Booking",
     cancellationSuccess: "Booking canceled successfully",
+    // Settings
+    settings: "Settings",
+    eidInterval: "Eid's Booking Interval",
+    defaultLanguage: "Default Language",
+    eidDateRange: "Date Range For Eid",
+    manageAppSettings: "Manage Application Settings",
   },
   // Auth
   auth: {

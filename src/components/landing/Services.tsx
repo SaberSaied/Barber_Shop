@@ -13,6 +13,9 @@ interface ServicesType {
   category: string;
   price: number;
   duration_minutes: number;
+  is_active: boolean;
+  note: string | null;
+  note_ar: string | null;
 }
 
 const Services = () => {
@@ -22,7 +25,7 @@ const Services = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const {data} = await supabase.from("services").select("*").order("category");
+      const {data} = await supabase.from("services").select("*").eq("is_active", true).order("category", { ascending: true }).order("name_en", { ascending: true }).order("name_ar", { ascending: true }).order("name_en", { ascending: true });
       if (data) {
         setItem(data as unknown as ServicesType[]);
         const uniqueItem = data.map((cat) => cat.category).filter((item, index, arr) => arr.indexOf(item) === index);
@@ -75,6 +78,9 @@ const Services = () => {
                   <div key={s.id} className="flex items-center justify-between border-b border-border/30 pb-3 last:border-0">
                     <div>
                       <p className="text-sm font-medium text-foreground">{i18n.language === "ar" && s.name_ar ? s.name_ar : s.name_en}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                        {s.note && `(${s.note})`} {(i18n.language === "ar" && s.note_ar) && `(${s.note_ar})`}
+                      </p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Clock className="w-3 h-3" /> {s.duration_minutes} {t("services.min")}
                       </p>

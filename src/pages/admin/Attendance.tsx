@@ -231,9 +231,9 @@ const Attendance = () => {
           ) : filteredRecords.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">{t("admin.noData")}</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto h-[500px]">
               <table className="w-full text-sm text-center">
-                <thead>
+                <thead className="bg-[#111] sticky top-0 z-10">
                   <tr className="border-b border-border">
                     <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('employee_id')}>
                       <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.employee")} <span>{renderSortArrow('employee_id')}</span></div>

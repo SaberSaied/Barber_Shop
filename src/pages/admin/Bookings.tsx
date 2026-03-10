@@ -75,8 +75,8 @@ const BookingsPage = () => {
   const [filters, setFilters] = useState({
     name: "",
   });
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Booking; direction: 'asc' | 'desc' }>({ key: 'booking_date', direction: 'desc' });
-  const [groupBy, setGroupBy] = useState<'barber_preference' | 'status' | 'booking_date' | ''>("");
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Booking; direction: 'asc' | 'desc' }>({ key: 'booking_time', direction: 'asc' });
+  const [groupBy, setGroupBy] = useState<'barber_preference' | 'status' | 'booking_date' | ''>("booking_date");
   const [period, setPeriod] = useState('monthly');
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const BookingsPage = () => {
   const fetchData = async () => {
     setLoading(true);
     const [bookingsRes, servicesRes, empRes] = await Promise.all([
-      supabase.from('bookings').select('id, created_at, customer_name, customer_phone, service_id, barber_preference, booking_date, booking_time, notes, status'),
+      supabase.from('bookings').select('id, created_at, customer_name, customer_phone, service_id, barber_preference, booking_date, booking_time, notes, status').order("booking_date"),
       supabase.from('services').select('id, name_en, name_ar, price, category'),
       supabase.from('employees').select('id, name, name_ar'),
     ]);
@@ -223,11 +223,13 @@ const BookingsPage = () => {
     const sorted = [...filtered].sort((a, b) => {
       const aValue = sortConfig.key === 'barber_preference' ? getBarberName(a.barber_preference) : a[sortConfig.key];
       const bValue = sortConfig.key === 'barber_preference' ? getBarberName(b.barber_preference) : b[sortConfig.key];
+      const cValue = sortConfig.key === 'booking_time' ? Number(a.booking_time) : aValue;
+      const dValue = sortConfig.key === 'booking_time' ? Number(b.booking_time) : bValue;
 
-      if (aValue < bValue) {
+      if (cValue < dValue) {
         return sortConfig.direction === 'asc' ? -1 : 1;
       }
-      if (aValue > bValue) {
+      if (cValue > dValue) {
         return sortConfig.direction === 'asc' ? 1 : -1;
       }
       return 0;
@@ -347,9 +349,9 @@ const BookingsPage = () => {
           ) : Object.keys(groupedBookings).length === 0 ? (
             <p className="text-muted-foreground text-center py-8">{t("admin.noData")}</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto h-[500px]">
               <table className="w-full text-sm text-center">
-                <thead>
+                <thead className="bg-[#111] sticky top-0 z-10">
                   <tr className="border-b border-border">
                     <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('customer_name')}>
                       <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.customer")} <span>{renderSortArrow('customer_name')}</span></div>
@@ -378,7 +380,7 @@ const BookingsPage = () => {
                     <React.Fragment key={group}>
                       {groupBy !== '' && (
                         <tr className="bg-muted/50">
-                          <td colSpan={7} className="py-2 px-4 font-bold text-primary">
+                          <td colSpan={8} className="py-2 px-4 font-bold text-primary">
                             {group} ({bookings.length})
                           </td>
                         </tr>

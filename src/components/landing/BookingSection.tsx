@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, CheckCircle2, ChevronRight, ChevronLeft, User, Scissors, CalendarDays, UserCheck, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
 import { adham, bogy, gedo } from "@/assets";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MAX_CUSTOMERS_PER_BARBER = 30;
@@ -35,6 +34,7 @@ interface BarberOption {
 const TOTAL_STEPS = 5;
 
 const BookingSection = () => {
+    const [settings, setSettings] = useState<{ eid_fee: number; eid_interval: { start: string | undefined; end: string | undefined } } | null>(null);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ const BookingSection = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [srvRes, empRes] = await Promise.all([
-        supabase.from("services").select("id, name_en, name_ar, price, category").eq("is_active", true),
+        supabase.from("services").select("id, name_en, name_ar, price, category").eq("is_active", true).order("category", { ascending: true }).order("name_en", { ascending: true }).order("name_ar", { ascending: true }),
         supabase.from("employees").select("*").eq("is_active", true).eq("role", "barber"),
       ]);
       if (srvRes.data) {
@@ -77,8 +77,19 @@ const BookingSection = () => {
       if (empRes.data) setBarbers(empRes.data as BarberOption[]);
     };
     fetchData();
-  }, []);
 
+    const fetchSettings = async () => {
+      const { data } = await supabase.from("settings").select("key, value");
+      if (data) {
+        const settingsMap = new Map(data.map(s => [s.key, s.value]));
+        setSettings({
+          eid_fee: parseFloat(settingsMap.get("eid_fee")) || 0,
+          eid_interval: settingsMap.get("eid_interval") || { start: undefined, end: undefined },
+        });
+      }
+    };
+    fetchSettings();
+  }, []);
   useEffect(() => {
     if (!barber || !date) return;
     const fetchTaken = async () => {
@@ -129,8 +140,8 @@ const BookingSection = () => {
   const canProceed = () => {
     switch (step) {
       case 1: return name.trim().length > 0 && /^(010|011|012|015)\d{8}$/.test(phone) && !pendingPhoneError;
-      case 2: return selectedServices.length > 0;
-      case 3: return !!date;
+      case 2: return !!date;
+      case 3: return selectedServices.length > 0;
       case 4: return barber !== "";
       case 5: return customerNumber !== null;
       default: return false;
@@ -176,11 +187,30 @@ const BookingSection = () => {
     }
   };
 
+  const servicesSubtotal = useMemo(() => {
+    return services
+      .filter((s) => selectedServices.includes(s.id))
+      .reduce((sum, s) => sum + s.price, 0);
+  }, [selectedServices, services]);
+
+  const isEid = useMemo(() => {
+    if (!date || !settings?.eid_interval?.start || !settings?.eid_interval?.end) return false;
+    const eidStart = parseISO(settings.eid_interval.start);
+    const eidEnd = parseISO(settings.eid_interval.end);
+    return isWithinInterval(date, { start: startOfDay(eidStart), end: endOfDay(eidEnd) });
+  }, [date, settings]);
+
+  const totalPrice = useMemo(() => {
+    const eidFee = settings?.eid_fee || 0;
+    return servicesSubtotal + (isEid ? eidFee : 0);
+  }, [servicesSubtotal, isEid, settings]);
+
+
   const getServiceName = (s: ServiceOption) => i18n.language === "ar" ? s.name_ar : s.name_en;
   const isAvailable = (b: BarberOption) => date?.toLocaleDateString('en-US', {weekday: 'short'}).toLowerCase() !== b.absent_day.toLowerCase();
   const getBarberName = (b: BarberOption) => (i18n.language === "ar" && b.name_ar) ? b.name_ar : b.name;
 
-  const stepIcons = [User, Scissors, CalendarDays, UserCheck, Hash];
+  const stepIcons = [User, CalendarDays, Scissors, UserCheck, Hash];
 
   if (submitted) {
     return (
@@ -278,8 +308,8 @@ const BookingSection = () => {
                 </div>
               )}
 
-              {/* Step 2: Services (Multi-select) */}
-              {step === 2 && (
+              {/* Step 3: Services (Multi-select) */}
+              {step === 3 && (
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-foreground">{t("booking.step2Title")}</h3>
                   <p className="text-sm text-muted-foreground">{t("booking.selectMultiple")}</p>
@@ -320,18 +350,36 @@ const BookingSection = () => {
                     ))}
                   </div>
                   {selectedServices.length > 0 && (
-                    <div className="flex justify-between text-sm font-medium pt-2 border-t border-border">
-                      <span className="text-muted-foreground">{t("booking.total")}</span>
-                      <span className="text-primary">
-                        ${services.filter((s) => selectedServices.includes(s.id)).reduce((sum, s) => sum + s.price, 0)}
-                      </span>
+                    <div>
+                      <div className="flex justify-between text-sm font-medium py-2 border-t border-border">
+                        <span className="text-muted-foreground">{t("admin.services")}</span>
+                        <span className="text-primary">
+                          {servicesSubtotal} {t("booking.price_mark")}
+                        </span>
+                      </div>
+
+                      {isEid && (settings?.eid_fee || 0) > 0 && (
+                        <div className="flex justify-between text-sm font-medium py-2">
+                          <span className="text-muted-foreground">{t("admin.eidFee")}</span>
+                          <span className="text-primary">
+                            {settings?.eid_fee} {t("booking.price_mark")}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between text-sm font-medium py-2 border-t border-border">
+                        <span className="text-muted-foreground">{t("booking.total")}</span>
+                        <span className="text-primary">
+                          {totalPrice} {t("booking.price_mark")}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Step 3: Date */}
-              {step === 3 && (
+              {/* Step 2: Date */}
+              {step === 2 && (
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-foreground">{t("booking.step3Title")}</h3>
                   <div className="flex justify-center">
@@ -348,6 +396,20 @@ const BookingSection = () => {
                       {t("booking.selected")}: {format(date, "PPP")}
                     </p>
                   )}
+                  <AnimatePresence>
+                    {isEid && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: 'auto' }} 
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden mt-4"
+                      >
+                        <div className="bg-primary/10 border border-primary/20 text-primary text-sm rounded-lg p-3 text-center">
+                          {t("booking.eidMessage", { fee: settings?.eid_fee || 0 })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
 

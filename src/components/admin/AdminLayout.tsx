@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, ShoppingCart, Clock, Wrench, Users, UserCog, Scissors, LogOut, ChevronLeft, Menu, DollarSign, BookOpen } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Clock, Wrench, Users, UserCog, Scissors, LogOut, ChevronLeft, Menu, DollarSign, BookOpen, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -13,20 +13,34 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
   const { user, loading, signOut } = useAuth();
   
   const [isOpen, setIsOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
 
   useEffect(() => {
-    if (user) {
-      supabase.rpc('has_role', { _user_id: user.id, _role: 'admin'}).then(({ data }) => {
-        setIsAdmin(!!data);
-      });
-    }
+    if (!user) return;
+    const getUserRoles = async () => {
+      const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+      if (data) {
+        setUserRoles(data.map((item: { role: string }) => item.role));
+      }
+      if (error) {
+        console.error('Error fetching user roles:', error);
+      }
+    };
+    getUserRoles();
   }, [user]);
 
-  if (loading || (user && isAdmin === null)) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>;
-  if (!user || isAdmin === false) return <Navigate to="/auth" replace />;
 
-  const sidebarLinks = [
+  const hasRole = (role: string) => userRoles.includes(role);
+
+  if (loading || (user && userRoles.length === 0)) return <div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>;
+  if (!user || (!hasRole('admin') && !hasRole('casher'))) return <Navigate to="/auth" replace />;
+
+  // If user is a casher (and not an admin), redirect them from any page that isn't the POS page.
+  if (hasRole('casher') && !hasRole('admin') && location.pathname !== '/admin/pos') {
+    return <Navigate to="/admin/pos" replace />;
+  }
+
+  const sidebarLinks = hasRole('admin') ? [
     { label: t("admin.dashboard"), href: "/admin", icon: LayoutDashboard },
     { label: t("admin.pos"), href: "/admin/pos", icon: ShoppingCart },
     { label: t("admin.attendance"), href: "/admin/attendance", icon: Clock },
@@ -34,6 +48,9 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
     { label: t("admin.services"), href: "/admin/services", icon: Wrench },
     { label: t("admin.expenses"), href: "/admin/expenses", icon: DollarSign },
     { label: t("admin.employees"), href: "/admin/employees", icon: UserCog },
+    { label: t("admin.settings"), href: "/admin/settings", icon: Settings },
+  ] : [
+    { label: t("admin.pos"), href: "/admin/pos", icon: ShoppingCart },
   ];
 
   return (

@@ -19,11 +19,22 @@ interface Service {
   price: number;
   duration_minutes: number;
   is_active: boolean;
+  note: string;
+  note_ar: string;
 }
 
 type SortDirection = 'asc' | 'desc';
 
-const emptyForm = { name_en: "", name_ar: "", category: "hair", price: 0, duration_minutes: 30, is_active: true };
+const emptyForm = { 
+  name_en: "",
+  name_ar: "", 
+  category: "hair", 
+  price: 0, 
+  duration_minutes: 30, 
+  is_active: true, 
+  note: "", 
+  note_ar: "" 
+};
 
 const ServicesManagement = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -36,7 +47,6 @@ const ServicesManagement = () => {
   const [groupBy, setGroupBy] = useState<'category' | ''>('');
   const { t } = useTranslation();
   const { toast } = useToast();
-
 
   const fetchServices = async () => {
     setLoading(true);
@@ -109,7 +119,16 @@ const ServicesManagement = () => {
 
   const openEdit = (s: Service) => {
     setEditingId(s.id);
-    setForm({ name_en: s.name_en, name_ar: s.name_ar, category: s.category, price: s.price, duration_minutes: s.duration_minutes, is_active: s.is_active });
+    setForm({ 
+      name_en: s.name_en, 
+      name_ar: s.name_ar, 
+      category: s.category, 
+      price: s.price, 
+      duration_minutes: s.duration_minutes, 
+      is_active: s.is_active, 
+      note: s.note, 
+      note_ar: s.note_ar 
+    });
     setDialogOpen(true);
   };
 
@@ -141,7 +160,6 @@ const ServicesManagement = () => {
     const map: Record<string, string> = { hair: t("admin.hair"), beard: t("admin.beard"), packages: t("admin.packages"), face: t("admin.face"), vip: t("admin.vip") };
     return map[c] || c;
   };
-
 
   return (
     <AdminLayout>
@@ -181,27 +199,33 @@ const ServicesManagement = () => {
           ) : Object.keys(filteredServices).length === 0 ? (
             <p className="text-muted-foreground text-center py-8">{t("admin.noServices")}</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto h-[500px]">
               <table className="w-full text-sm overflow-auto text-center">
-                <thead>
+                <thead className="bg-[#111] sticky top-0 z-10">
                   <tr className="border-b border-border">
-                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_en')}>
+                    <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_en')}>
                       <div className="flex items-center">{t("admin.serviceName")} {renderSortArrow('name_en')}</div>
                     </th>
-                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_ar')}>
+                    <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('name_ar')}>
                       <div className="flex items-center">{t("admin.serviceNameAr")} {renderSortArrow('name_ar')}</div>
                     </th>
-                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('category')}>
+                    <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('note')}>
+                      <div className="flex items-center">{t("admin.note")} {renderSortArrow('note')}</div>
+                    </th>
+                    <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('note_ar')}>
+                      <div className="flex items-center">{t("admin.note_ar")} {renderSortArrow('note_ar')}</div>
+                    </th>
+                    <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('category')}>
                       <div className="flex items-center">{t("admin.category")} {renderSortArrow('category')}</div>
                     </th>
-                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('price')}>
+                    <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('price')}>
                       <div className="flex items-center">{t("admin.price")} {renderSortArrow('price')}</div>
                     </th>
-                    <th className="text-start p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('duration_minutes')}>
+                    <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('duration_minutes')}>
                       <div className="flex items-center">{t("admin.duration")} {renderSortArrow('duration_minutes')}</div>
                     </th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.active")}</th>
-                    <th className="text-start p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("admin.active")}</th>
+                    <th className="p-3 text-muted-foreground font-medium">{t("admin.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -217,6 +241,8 @@ const ServicesManagement = () => {
                           <tr key={s.id} className="border-b border-border/50">
                             <td className="py-3 font-medium">{s.name_en}</td>
                             <td className="py-3 font-medium">{s.name_ar}</td>
+                            <td className="py-3 font-medium">{s.note || '-'}</td>
+                            <td className="py-3 font-medium">{s.note_ar || '-'}</td>
                             <td className="py-3">
                               <span className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground">{categoryLabel(s.category)}</span>
                             </td>
@@ -242,6 +268,8 @@ const ServicesManagement = () => {
                       <tr key={s.id} className="border-b border-border/50">
                         <td className="py-3 font-medium">{s.name_en}</td>
                         <td className="py-3 font-medium">{s.name_ar}</td>
+                        <td className="py-3 text-sm">{s.note || '-'}</td>
+                        <td className="py-3 text-sm">{s.note_ar || '-'}</td>
                         <td className="py-3">
                           <span className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground">{categoryLabel(s.category)}</span>
                         </td>
@@ -281,6 +309,14 @@ const ServicesManagement = () => {
             <div>
               <label className="text-sm font-medium mb-1 block">{t("admin.nameAr")}</label>
               <Input value={form.name_ar} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} dir="rtl" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">{t("admin.note")}</label>
+              <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">{t("admin.note_ar")}</label>
+              <Input value={form.note_ar} onChange={(e) => setForm({ ...form, note_ar: e.target.value })} dir="rtl" />
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">{t("admin.category")}</label>

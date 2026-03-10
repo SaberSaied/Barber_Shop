@@ -58,7 +58,27 @@ export type Database = {
           },
         ]
       }
-
+      settings: {
+        Row: {
+          key: string
+          value: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          value?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
@@ -278,6 +298,8 @@ export type Database = {
           name_en: string
           price: number
           updated_at: string
+          note: string | null
+          note_ar: string | null
         }
         Insert: {
           category?: string
@@ -289,6 +311,8 @@ export type Database = {
           name_en: string
           price: number
           updated_at?: string
+          note?: string | null
+          note_ar?: string | null
         }
         Update: {
           category?: string
@@ -300,6 +324,8 @@ export type Database = {
           name_en?: string
           price?: number
           updated_at?: string
+          note?: string | null
+          note_ar?: string | null
         }
         Relationships: []
       }

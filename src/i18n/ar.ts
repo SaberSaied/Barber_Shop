@@ -99,8 +99,8 @@ export const ar = {
     back: "رجوع",
     next: "التالي",
     step1: "المعلومات",
-    step2: "الخدمات",
-    step3: "التاريخ",
+    step2: "التاريخ",
+    step3: "الخدمات",
     step4: "الحلاق",
     step5: "الدور",
     step1Title: "معلوماتك",
@@ -113,6 +113,7 @@ export const ar = {
     taken: "محجوز",
     number: "الرقم",
     messageAfterBooking: "شكراً لحجزك! نتطلع لإعطائك تجربة لا تُنسى في Karizma. سنرسل لك رسالة قبل خدمتك.",
+    eidMessage: "سيتم إضافة رسوم العيد مع الفاتورة الكلية."
   },
   // Contact
   contact: {
@@ -244,6 +245,10 @@ export const ar = {
     vip: "VIP",
     serviceName: "اسم الخدمة",
     serviceNameAr: "اسم الخدمة (بالعربي)",
+    other: "أخرى",
+    eidFee: "رسوم حجز العيد",
+    note: "ملاحظة (إنجليزي)",
+    note_ar: "ملاحظة (بالعربي)",
     // Customers
     customerProfiles: "ملفات العملاء وسجل الزيارات",
     searchCustomers: "البحث عن عملاء...",
@@ -310,6 +315,12 @@ export const ar = {
     canceled: "ملغي",
     cancelBooking: "إلغاء الحجز",
     cancellationSuccess: "تم إلغاء الحجز بنجاح",
+    // Settings
+    settings: "الإعدادات",
+    eidInterval: "الفترة الزمنية للحجز في عيد",
+    defaultLanguage: "اللغة الافتراضية",
+    eidDateRange: "الفترة الزمنية للعيد",
+    manageAppSettings: "إدارة إعدادات التطبيق",
   },
   // Auth
   auth: {
