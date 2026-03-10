@@ -15,6 +15,7 @@ import Attendance from "./pages/admin/Attendance";
 import ServicesManagement from "./pages/admin/ServicesManagement";
 import Employees from "./pages/admin/Employees";
 import ExpensesPage from "./pages/admin/Expenses";
+import BookingsPage from "./pages/admin/Bookings";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => {
               <Route path="/admin/pos" element={<POS />} />
               <Route path="/admin/attendance" element={<Attendance />} />
               <Route path="/admin/expenses" element={<ExpensesPage />} />
+              <Route path="/admin/bookings" element={<BookingsPage />} />
               <Route path="/admin/services" element={<ServicesManagement />} />
               <Route path="/admin/employees" element={<Employees />} />
               <Route path="*" element={<NotFound />} />

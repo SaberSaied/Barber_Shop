@@ -13,6 +13,8 @@ import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { adham, bogy, gedo } from "@/assets";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 const MAX_CUSTOMERS_PER_BARBER = 30;
 
 interface ServiceOption {
@@ -193,6 +195,7 @@ const BookingSection = () => {
               setStep(1);
               setName(""); setPhone(""); setSelectedServices([]); setDate(undefined); setBarber(""); setCustomerNumber(null); setPendingPhoneError("");
             }}>{t("booking.bookAnother")}</Button>
+            <p className="text-muted-foreground mt-4">{t("booking.messageAfterBooking")}</p>
           </motion.div>
         </div>
       </section>
@@ -401,30 +404,91 @@ const BookingSection = () => {
                   {loadingSlots ? (
                     <div className="text-center py-8 text-muted-foreground">{t("auth.loading")}</div>
                   ) : (
-                    <div className="grid grid-cols-5 gap-3">
-                      {Array.from({ length: MAX_CUSTOMERS_PER_BARBER }, (_, i) => i + 1).map((num) => {
-                        const taken = takenNumbers.includes(num);
-                        const selected = customerNumber === num;
-                        return (
-                          <button
-                            key={num}
-                            type="button"
-                            disabled={taken}
-                            onClick={() => setCustomerNumber(num)}
-                            className={cn(
-                              "h-12 rounded-lg font-semibold text-sm transition-all",
-                              taken
-                                ? "bg-muted text-muted-foreground cursor-not-allowed opacity-40 line-through"
-                                : selected
-                                ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                                : "bg-secondary border border-border text-foreground hover:border-primary"
-                            )}
-                          >
-                            {num}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <Tabs defaultValue="after1pm" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="after1pm">{t("booking.after1pm")}</TabsTrigger>
+                        <TabsTrigger value="after7pm">{t("booking.after7pm")}</TabsTrigger>
+                        <TabsTrigger value="after12am">{t("booking.after12am")}</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="after1pm">
+                        <div className="grid grid-cols-5 gap-3 pt-4">
+                          {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+                            const taken = takenNumbers.includes(num);
+                            const selected = customerNumber === num;
+                            return (
+                              <button
+                                key={num}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setCustomerNumber(num)}
+                                className={cn(
+                                  "h-12 rounded-lg font-semibold text-sm transition-all",
+                                  taken
+                                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-40 line-through"
+                                    : selected
+                                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                                    : "bg-secondary border border-border text-foreground hover:border-primary"
+                                )}
+                              >
+                                {num}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="after7pm">
+                        <div className="grid grid-cols-5 gap-3 pt-4">
+                          {Array.from({ length: 10 }, (_, i) => i + 11).map((num) => {
+                            const taken = takenNumbers.includes(num);
+                            const selected = customerNumber === num;
+                            return (
+                              <button
+                                key={num}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setCustomerNumber(num)}
+                                className={cn(
+                                  "h-12 rounded-lg font-semibold text-sm transition-all",
+                                  taken
+                                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-40 line-through"
+                                    : selected
+                                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                                    : "bg-secondary border border-border text-foreground hover:border-primary"
+                                )}
+                              >
+                                {num}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="after12am">
+                        <div className="grid grid-cols-5 gap-3 pt-4">
+                          {Array.from({ length: 10 }, (_, i) => i + 21).map((num) => {
+                            const taken = takenNumbers.includes(num);
+                            const selected = customerNumber === num;
+                            return (
+                              <button
+                                key={num}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setCustomerNumber(num)}
+                                className={cn(
+                                  "h-12 rounded-lg font-semibold text-sm transition-all",
+                                  taken
+                                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-40 line-through"
+                                    : selected
+                                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                                    : "bg-secondary border border-border text-foreground hover:border-primary"
+                                )}
+                              >
+                                {num}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   )}
                   <div className="flex gap-4 text-xs text-muted-foreground pt-2">
                     <div className="flex items-center gap-1.5">

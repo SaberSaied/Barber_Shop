@@ -67,7 +67,10 @@ export const en = {
   // Booking
   booking: {
     tagline: "Reserve Your Spot",
-    price_mark: "$",
+    after1pm: "After 1 PM",
+    after7pm: "After 7 PM",
+    after12am: "After 12 AM",
+    price_mark: "EGP",
     title: "Book an",
     titleHighlight: "Appointment",
     confirmed: "Booking Confirmed!",
@@ -109,6 +112,7 @@ export const en = {
     available: "Available",
     taken: "Taken",
     number: "Number",
+    meessageAfterBooking: "Thank you for booking with us! We look forward to giving you an amazing experience. We will send you a message before your services.",
   },
   // Contact
   contact: {
@@ -159,6 +163,13 @@ export const en = {
     UpdateBooking: "Update Booking",
     bookingUpdated: "Booking Updated!",
     uncategorized: "Uncategorized",
+    manageBookings: "Manage Bookings",
+    all: "All",
+    addBooking: "Add Booking",
+    customerName: "Customer Name",
+    customerPhone: "Customer Phone",
+    selectStatus: "Select Status",
+    bookingDeleted: "Booking deleted successfully",
     // POS
     pointOfSale: "Point of Sale",
     posSubtitle: "Select a pending booking to process payment",
@@ -175,10 +186,10 @@ export const en = {
     card: "Card",
     cash: "Cash",
     paymentSuccess: "Payment Successful!",
-    bookingDeleted: "Booking Deleted!",
     searchByNameOrPhone: "Search by name or phone...",
     casher: "Casher",
     sort: "Sort",
+    number: "Number",
     filterBy: "Filter By",
     booking_date: "Booking Date",
     created_at: "Created At",
@@ -294,7 +305,11 @@ export const en = {
     image: "Image",
     imageUrl: "Image URL",
     pickDate: "Pick Date",
-    customRange: "Custom Date"
+    customRange: "Custom Date",
+    date: "Date",
+    canceled: "Canceled",
+    cancelBooking: "Cancel Booking",
+    cancellationSuccess: "Booking canceled successfully",
   },
   // Auth
   auth: {

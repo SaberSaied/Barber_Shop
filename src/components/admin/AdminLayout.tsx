@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, ShoppingCart, Clock, Wrench, Users, UserCog, Scissors, LogOut, ChevronLeft, Menu, DollarSign } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Clock, Wrench, Users, UserCog, Scissors, LogOut, ChevronLeft, Menu, DollarSign, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -30,6 +30,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
     { label: t("admin.dashboard"), href: "/admin", icon: LayoutDashboard },
     { label: t("admin.pos"), href: "/admin/pos", icon: ShoppingCart },
     { label: t("admin.attendance"), href: "/admin/attendance", icon: Clock },
+    { label: t("admin.bookings"), href: "/admin/bookings", icon: BookOpen },
     { label: t("admin.services"), href: "/admin/services", icon: Wrench },
     { label: t("admin.expenses"), href: "/admin/expenses", icon: DollarSign },
     { label: t("admin.employees"), href: "/admin/employees", icon: UserCog },
