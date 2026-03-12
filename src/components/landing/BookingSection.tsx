@@ -89,9 +89,9 @@ const BookingSection = () => {
       if (data) {
         const settingsMap = new Map(data.map(s => [s.key, s.value]));
         setSettings({
-          eid_fee: parseFloat(settingsMap.get("eid_fee")) || 0,
-          eid_interval: settingsMap.get("eid_interval") || { start: undefined, end: undefined },
-          vacation: settingsMap.get("vacation") || { start: undefined, end: undefined },
+          eid_fee: parseFloat(settingsMap.get("eid_fee")),
+          eid_interval: settingsMap.get("eid_interval"),
+          vacation: settingsMap.get("vacation"),
         });
       }
     };
