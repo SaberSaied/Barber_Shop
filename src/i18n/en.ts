@@ -114,6 +114,7 @@ export const en = {
     number: "Number",
     meessageAfterBooking: "Thank you for booking with us! We look forward to giving you an amazing experience. We will send you a message before your services.",
     eidMessage: "EID fee will be added to the total price.",
+    vacationMessage: "This Day is a Vacation Day, So You Can't Book",
   },
   // Contact
   contact: {
@@ -196,6 +197,7 @@ export const en = {
     created_at: "Created At",
     customer_name: "Customer Name",
     editBill: "Edit Bill",
+    addManualBill: "Add Manual Bill",
     // Attendance
     trackAttendance: "Track clock-ins, shifts, and hours",
     todayAttendance: "Today's Attendance",
@@ -310,7 +312,8 @@ export const en = {
     image: "Image",
     imageUrl: "Image URL",
     pickDate: "Pick Date",
-    customRange: "Custom Date",
+    customRange: "Custom Date Range",
+    customDate: "Custom Date",
     date: "Date",
     canceled: "Canceled",
     cancelBooking: "Cancel Booking",
@@ -321,6 +324,13 @@ export const en = {
     defaultLanguage: "Default Language",
     eidDateRange: "Date Range For Eid",
     manageAppSettings: "Manage Application Settings",
+    settingsUpdated: "Settings Updated!",
+    settingsUpdatedSuccess: "Settings Updated Success",
+    settingsUpdateError: "Error: You Can't Update",
+    saving: "Saving",
+    vacation: "Vacation",
+    vacationDateRange: "Date Range For Vacation",
+    vacationFee: "Vacation Booking Fee",
   },
   // Auth
   auth: {

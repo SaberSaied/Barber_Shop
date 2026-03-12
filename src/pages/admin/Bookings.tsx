@@ -47,11 +47,24 @@ interface Employee {
   name_ar: string;
 }
 
+interface settingsOption {
+  eid_fee: number;
+  eid_interval: {
+    start: string | undefined;
+    end: string | undefined;
+  };
+  vacation?: {
+    start: string | undefined;
+    end: string | undefined;
+  };
+}
+
 const BookingsPage = () => {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
 
   // State
+  const [settings, setSettings] = useState<settingsOption | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -79,23 +92,32 @@ const BookingsPage = () => {
   const [groupBy, setGroupBy] = useState<'barber_preference' | 'status' | 'booking_date' | ''>("booking_date");
   const [period, setPeriod] = useState('monthly');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     setLoading(true);
-    const [bookingsRes, servicesRes, empRes] = await Promise.all([
+    const [bookingsRes, servicesRes, empRes, settingsRes] = await Promise.all([
       supabase.from('bookings').select('id, created_at, customer_name, customer_phone, service_id, barber_preference, booking_date, booking_time, notes, status').order("booking_date"),
       supabase.from('services').select('id, name_en, name_ar, price, category'),
       supabase.from('employees').select('id, name, name_ar'),
+      supabase.from('settings').select('key, value'),
     ]);
 
     if (bookingsRes.data) setBookings(bookingsRes.data as Booking[]);
     if (servicesRes.data) setServices(servicesRes.data as Service[]);
     if (empRes.data) setEmployees(empRes.data as Employee[]);
+    if (settingsRes.data) {
+      const settingsMap = new Map(settingsRes.data.map(s => [s.key, s.value]));
+      setSettings({
+        eid_fee: parseFloat(settingsMap.get("eid_fee")) || 0,
+        eid_interval: settingsMap.get("eid_interval") || { start: undefined, end: undefined },
+        vacation: settingsMap.get("vacation") || { start: undefined, end: undefined },
+      });
+    }
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const getServiceName = (serviceIds: string) => {
     if (!serviceIds) return '';
@@ -141,6 +163,15 @@ const BookingsPage = () => {
     setDialogOpen(true);
   };
 
+  const isEid = useMemo(() => {
+    if (!date || !settings?.eid_interval?.start || !settings?.eid_interval?.end) return false;
+    const eidStart = parseISO(settings.eid_interval.start);
+    const eidEnd = parseISO(settings.eid_interval.end);
+    const book_date = form.booking_date ? parseISO(form.booking_date) : new Date();
+    return isWithinInterval(book_date, { start: startOfDay(eidStart), end: endOfDay(eidEnd) });
+  }, [date, settings, form.booking_date]);
+
+
   const handleSave = async () => {
     const payload = { ...form };
     if (editingId) {
@@ -176,7 +207,8 @@ const BookingsPage = () => {
       const service = services.find(s => s.id === id);
       return total + (service ? service.price : 0);
     }, 0);
-  }, [form.notes, services]);
+  }, [form.notes, services, settings, isEid]);
+  const totalPrice = totalBookingPrice + (isEid ? settings.eid_fee : 0);
 
   const filteredAndSortedBookings = useMemo(() => {
     let filtered = bookings.filter(b => 
@@ -508,11 +540,21 @@ const BookingsPage = () => {
                   </div>
                 </ScrollArea>
               </div>
-            </div>
+            </div>            
+            {isEid && <div className="mt-4 pt-4 border-t">
+              <div className="flex justify-between items-center font-bold text-lg">
+                <span>{t('admin.services')}</span>
+                <span>{totalBookingPrice.toFixed(2)} {t("booking.price_mark")}</span>
+              </div>
+              <div className="flex justify-between items-center font-bold text-lg">
+                <span>{t('admin.eidFee')}</span>
+                <span>{settings.eid_fee.toFixed(2)} {t("booking.price_mark")}</span>
+              </div>
+            </div>}
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center font-bold text-lg">
                 <span>{t('admin.total')}</span>
-                <span>{totalBookingPrice.toFixed(2)} {t("booking.price_mark")}</span>
+                <span>{totalPrice.toFixed(2)} {t("booking.price_mark")}</span>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-6">

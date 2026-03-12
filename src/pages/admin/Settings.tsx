@@ -17,6 +17,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [eidFee, setEidFee] = useState("");
   const [eidInterval, setEidInterval] = useState<DateRange | undefined>();
+  const [vacation, setVacation] = useState<DateRange | undefined>()
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -26,12 +27,19 @@ const Settings = () => {
       toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
     } else if (data) {
       const settingsMap = new Map(data.map(s => [s.key, s.value]));
-      setEidFee(settingsMap.get("eid_fee") || "");
+      setEidFee((settingsMap.get("eid_fee") || ""));
       const interval = settingsMap.get("eid_interval");
       if (interval && interval?.['start'] && interval?.['end']) {
         setEidInterval({
           from: parseISO(interval?.['start']),
           to: parseISO(interval?.['end']),
+        });
+      }
+      const intervalVacation = settingsMap.get("vacation");
+      if (intervalVacation && intervalVacation?.['start'] && intervalVacation?.['end']) {
+        setVacation({
+          from: parseISO(intervalVacation?.['start']),
+          to: parseISO(intervalVacation?.['end']),
         });
       }
     }
@@ -50,6 +58,13 @@ const Settings = () => {
         value: {
           start: eidInterval?.['from'] ? format(eidInterval['from'], "yyyy-MM-dd") : null,
           end: eidInterval?.['to'] ? format(eidInterval['to'], "yyyy-MM-dd") : null,
+        }
+      }),
+      supabase.from("settings").upsert({ 
+        key: "vacation", 
+        value: {
+          start: vacation?.['from'] ? format(vacation['from'], "yyyy-MM-dd") : null,
+          end: vacation?.['to'] ? format(vacation['to'], "yyyy-MM-dd") : null,
         }
       }),
     ];
@@ -103,7 +118,7 @@ const Settings = () => {
                       format(eidInterval.from, "LLL dd, y")
                     )
                   ) : (
-                    <span>{t("admin.pickADateRange")}</span>
+                    <span>{t("admin.pickDate")}</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -114,6 +129,43 @@ const Settings = () => {
                   defaultMonth={eidInterval?.from}
                   selected={eidInterval}
                   onSelect={setEidInterval}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1 block">{t("admin.vacationDateRange")}</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {vacation?.from ? (
+                    vacation.to ? (
+                      <>
+                        {format(vacation.from, "LLL dd, y")} -{" "}
+                        {format(vacation.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(vacation.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>{t("admin.pickDate")}</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={vacation?.from}
+                  selected={vacation}
+                  onSelect={setVacation}
                   numberOfMonths={2}
                 />
               </PopoverContent>

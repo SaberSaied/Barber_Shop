@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 
 type SortDirection = 'asc' | 'desc';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, endOfYesterday, startOfDay, endOfDay, parseISO } from "date-fns";
+import { useAuth } from "@/hooks/useAuth";
 
 
 interface Employee {
@@ -90,6 +91,12 @@ const POS = () => {
   const [sortConfig, setSortConfig] = useState<{ key: 'created_at' | 'total' | 'barber_id'; direction: SortDirection }>({ key: 'created_at', direction: 'desc' });
   const [groupBy, setGroupBy] = useState<string>("");
   const [bookingSearch, setBookingSearch] = useState("");
+  const [bookingFilterType, setBookingFilterType] = useState("daily"); // daily, weekly, custom, range
+  const [customBookingDate, setCustomBookingDate] = useState<Date | undefined>(new Date());
+  const [customBookingDateRange, setCustomBookingDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
   const [period, setPeriod] = useState<string>("daily");
   const now = new Date();
   const [date, setDate] = React.useState<DateRange | undefined>({
@@ -97,43 +104,89 @@ const POS = () => {
     to: endOfWeek(now, { weekStartsOn: 1 }),
   });
   const [aggregationType, setAggregationType] = useState<string>("sum");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const {user} = useAuth();
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
 
-  const fetchData = async () => {
-    const [bookRes, billRes, srvRes, empRes, settRes] = await Promise.all([
-      supabase
+    useEffect(() => {
+      if (!user) return;
+      const getUserRoles = async () => {
+        const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+        if (data) {
+          if (data.some((item: { role: string }) => item.role === 'admin')) {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false)
+          }
+        }
+        if (error) {
+          console.error('Error fetching user roles:', error);
+        }
+      };
+      getUserRoles();
+    }, [user]);
+  
+  // Fetch non-booking data once
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      const [srvRes, empRes, settRes] = await Promise.all([
+        supabase.from("services").select("id, name_en, name_ar, price, category").eq("is_active", true).order("category"),
+        supabase.from("employees").select("id, name, name_ar").eq("role", "barber"),
+        supabase.from("settings").select("key, value")
+      ]);
+      if (srvRes.data) setAllServices(srvRes.data as ServiceOption[]);
+      if (empRes.data) setEmployees(empRes.data as Employee[]);
+      if (settRes.data) {
+        const settingsMap = new Map(settRes.data.map(s => [s.key, s.value]));
+        setSettings({
+          eid_fee: parseFloat(settingsMap.get("eid_fee")) || 0,
+          eid_interval: settingsMap.get("eid_interval") || { start: null, end: null },
+        });
+      }
+      setLoadingBills(false); // Assuming this covers all initial loading
+    };
+    fetchInitialData();
+  }, []);
+
+  // Fetch bookings and bills based on filters
+  useEffect(() => {
+    const fetchFilteredData = async () => {
+      let query = supabase
         .from("bookings")
         .select("id, customer_name, customer_phone, booking_date, booking_time, barber_preference, status, notes, service:services(id, name_en, name_ar, price)")
-        .eq("status", "pending")
-        .order("booking_date", { ascending: true }),
-      supabase
+        .eq("status", "pending");
+
+      // Date Filtering Logic
+      const today = new Date();
+      if (bookingFilterType === 'daily') {
+        query = query.eq('booking_date', format(today, 'yyyy-MM-dd'));
+      } else if (bookingFilterType === 'weekly') {
+        const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+        query = query.gte('booking_date', format(weekStart, 'yyyy-MM-dd')).lte('booking_date', format(weekEnd, 'yyyy-MM-dd'));
+      } else if (bookingFilterType === 'custom' && customBookingDate) {
+        query = query.eq('booking_date', format(customBookingDate, 'yyyy-MM-dd'));
+      } else if (bookingFilterType === 'range' && customBookingDateRange?.from && customBookingDateRange?.to) {
+        query = query.gte('booking_date', format(customBookingDateRange.from, 'yyyy-MM-dd')).lte('booking_date', format(customBookingDateRange.to, 'yyyy-MM-dd'));
+      }
+
+      const { data: bookData, error: bookError } = await query.order("booking_date", { ascending: true });
+      if (bookData) setBookings(bookData as Booking[]);
+      if(bookError) console.error("Error fetching bookings:", bookError);
+
+      // Fetch bills separately if they don't need date filtering from the booking controls
+      const { data: billRes } = await supabase
         .from("bills")
         .select("*")
         .eq("status", "completed")
         .order("created_at", { ascending: false })
-        .limit(500),
-      supabase.from("services").select("id, name_en, name_ar, price, category").eq("is_active", true).order("category"),
-      supabase.from("employees").select("id, name, name_ar").eq("role", "barber"),
-      supabase.from("settings").select("key, value")
-    ]);
-    if (bookRes.data) setBookings(bookRes.data as Booking[]);
-    if (billRes.data) {
-      setBills(billRes.data as Bill[]);
-    }
-    if (srvRes.data) setAllServices(srvRes.data as ServiceOption[]);
-    if (empRes.data) setEmployees(empRes.data as Employee[]);
-    if (settRes.data) {
-      const settingsMap = new Map(settRes.data.map(s => [s.key, s.value]));
-      setSettings({
-        eid_fee: parseFloat(settingsMap.get("eid_fee")) || 0,
-        eid_interval: settingsMap.get("eid_interval") || { start: null, end: null },
-      });
-    }
-    setLoadingBills(false);
-  };
+        .limit(500);
+      if (billRes) setBills(billRes as Bill[]);
+    };
 
-  useEffect(() => { fetchData(); }, []);
+    fetchFilteredData();
+  }, [bookingFilterType, customBookingDate, customBookingDateRange]);
 
   const isEid = useMemo(() => {
     const today = new Date();
@@ -482,12 +535,86 @@ const POS = () => {
           {/* Pending Bookings */}
           <div className="lg:col-span-2 h-[50vh] overflow-y-scroll px-4">
             <h2 className="font-display text-lg font-semibold mb-4">{t("admin.pendingBookings")}</h2>
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-2 mb-4">
                 <Input
                   placeholder={t("admin.searchByNameOrPhone")}
                   value={bookingSearch}
                   onChange={(e) => setBookingSearch(e.target.value)}
+                  className="max-w-sm"
                 />
+                <Select value={bookingFilterType} onValueChange={setBookingFilterType}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t('admin.filterByDate')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">{t('admin.daily')}</SelectItem>
+                    <SelectItem value="weekly">{t('admin.weekly')}</SelectItem>
+                    <SelectItem value="custom">{t('admin.customDate')}</SelectItem>
+                    <SelectItem value="range">{t('admin.customRange')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                {bookingFilterType === 'custom' && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[280px] justify-start text-left font-normal",
+                          !customBookingDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {customBookingDate ? format(customBookingDate, "PPP") : <span>{t('admin.pickDate')}</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={customBookingDate}
+                        onSelect={setCustomBookingDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+                {bookingFilterType === 'range' && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant={"outline"}
+                        className={cn(
+                          "w-[300px] justify-start text-left font-normal",
+                          !customBookingDateRange && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {customBookingDateRange?.from ? (
+                          customBookingDateRange.to ? (
+                            <>
+                              {format(customBookingDateRange.from, "LLL dd, y")} -{" "}
+                              {format(customBookingDateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(customBookingDateRange.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>{t('admin.pickDateRange')}</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={customBookingDateRange?.from}
+                        selected={customBookingDateRange}
+                        onSelect={setCustomBookingDateRange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
             {filteredBookings.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">{t("admin.noBookings")}</p>
@@ -515,9 +642,9 @@ const POS = () => {
                       <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
                         {t("admin.pending")}
                       </span>
-                      <Button variant="ghost" onClick={() => deleteBooking(b.id)} className="text-destructive hover:text-white hover:bg-destructive">
+                      {isAdmin && <Button variant="ghost" onClick={() => deleteBooking(b.id)} className="text-destructive hover:text-white hover:bg-destructive">
                         <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </Button>}
                     </div>
                     <Button variant={selectedBookingId === b.id ? `default` : 'outline'} className="w-full mt-3"
                     onClick={() => selectBooking(b)}>{selectedBookingId === b.id ? t("admin.selected") : t("admin.select")}</Button>
@@ -584,8 +711,8 @@ const POS = () => {
 
         {/* Bills Report */}
         <div className="glass-card rounded-xl p-6">
-          <h2 className="font-display text-lg font-semibold">{t("admin.billsReport")}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 my-6">
+          {isAdmin && <h2 className="font-display text-lg font-semibold">{t("admin.billsReport")}</h2>}
+          {isAdmin && <div className="grid grid-cols-2 md:grid-cols-5 gap-4 my-6">
             {periodData.map((p) => (
               <div key={p.key} className="bg-secondary rounded-lg p-4 text-center">
                 <p className="text-xs text-muted-foreground mb-1">{p.label}</p>
@@ -595,10 +722,10 @@ const POS = () => {
                 </p>
               </div>
             ))}
-          </div>
+          </div>}
 
           <div className="flex justify-between items-center mb-4 gap-4">
-            <div className="flex items-center gap-4 flex-wrap flex-col md:flex-row">
+            {isAdmin && <div className="flex items-center gap-4 flex-wrap flex-col md:flex-row">
               {(period === "custom") && (
                 <Popover>
                   <PopoverTrigger asChild>
@@ -664,14 +791,14 @@ const POS = () => {
                     <SelectItem value="count">{t("admin.count")}</SelectItem>
                   </SelectContent>
                 </Select>
-            </div>
+            </div>}
           </div>
           <Tabs defaultValue="daily" className="w-full" onValueChange={(value) => setPeriod(value)}>
-            <TabsList className="mb-4 flex flex-wrap gap-2 size-full">
+            {isAdmin && <TabsList className="mb-4 flex flex-wrap gap-2 size-full">
               {periodData.map((p) => (
                 <TabsTrigger key={p.key} value={p.key} onClick={() => setPeriod(p.key)}>{p.label}</TabsTrigger>
               ))}
-            </TabsList>
+            </TabsList>}
             {periodData.map((p) => (
               <TabsContent key={p.key} value={p.key}>
                 {loadingBills ? (
@@ -697,7 +824,7 @@ const POS = () => {
                             <div className="flex items-center">{t("admin.total")} {renderSortArrow('total')}</div>
                           </th>
                           <th className="p-2 text-muted-foreground font-medium">{t("admin.payment")}</th>
-                          <th className="p-2 text-muted-foreground font-medium">{t("admin.actions")}</th>
+                          {isAdmin && <th className="p-2 text-muted-foreground font-medium">{t("admin.actions")}</th>}
                         </tr>
                       </thead>
                       <tbody>
@@ -729,16 +856,16 @@ const POS = () => {
                                       {b.payment_method === "card" ? t("admin.card") : t("admin.cash")}
                                     </span>
                                   </td>
-                                  <td className="py-2">
-                              <div className="flex gap-2">
-                                <Button variant="ghost" size="icon" className="h-8 w-8  text-green-700 hover:bg-green-700 hover:text-white" onClick={() => handleEditBill(b)}>
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-white hover:bg-destructive" onClick={() => handleDeleteBill(b.id)}>
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </td>
+                                  {isAdmin && <td className="py-2">
+                                    <div className="flex gap-2">
+                                      <Button variant="ghost" size="icon" className="h-8 w-8  text-green-700 hover:bg-green-700 hover:text-white" onClick={() => handleEditBill(b)}>
+                                        <Pencil className="w-4 h-4" />
+                                      </Button>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-white hover:bg-destructive" onClick={() => handleDeleteBill(b.id)}>
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </td>}
                                 </tr>
                               ))}
                             </React.Fragment>
@@ -760,16 +887,16 @@ const POS = () => {
                                   {b.payment_method === "card" ? t("admin.card") : t("admin.cash")}
                                 </span>
                               </td>
-                              <td className="py-2">
-                                  <div className="flex gap-2">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8  text-green-700 hover:bg-green-700 hover:text-white" onClick={() => handleEditBill(b)}>
-                                      <Pencil className="w-4 h-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-white hover:bg-destructive" onClick={() => handleDeleteBill(b.id)}>
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </td>
+                              {isAdmin && <td className="py-2">
+                                <div className="flex gap-2">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8  text-green-700 hover:bg-green-700 hover:text-white" onClick={() => handleEditBill(b)}>
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-white hover:bg-destructive" onClick={() => handleDeleteBill(b.id)}>
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </td>}
                             </tr>
                           ))
                         )}

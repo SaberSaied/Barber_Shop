@@ -61,19 +61,19 @@ export type Database = {
       settings: {
         Row: {
           key: string
-          value: string
+          value: any
           created_at: string
           updated_at: string
         }
         Insert: {
           key: string
-          value: string
+          value: any
           created_at?: string
           updated_at?: string
         }
         Update: {
           key?: string
-          value?: string
+          value?: any
           created_at?: string
           updated_at?: string
         }

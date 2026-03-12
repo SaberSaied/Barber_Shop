@@ -79,7 +79,7 @@ const Services = () => {
                     <div>
                       <p className="text-sm font-medium text-foreground">{i18n.language === "ar" && s.name_ar ? s.name_ar : s.name_en}</p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        {s.note && `(${s.note})`} {(i18n.language === "ar" && s.note_ar) && `(${s.note_ar})`}
+                        {(i18n.language === "en" && s.note) ? `(${s.note})` : (i18n.language === "ar" && s.note_ar) ? `(${s.note_ar})` : ""}
                       </p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Clock className="w-3 h-3" /> {s.duration_minutes} {t("services.min")}

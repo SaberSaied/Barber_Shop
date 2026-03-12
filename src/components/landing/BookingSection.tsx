@@ -31,10 +31,16 @@ interface BarberOption {
   absent_day: string | null;
 }
 
+interface SettingsOption {
+  eid_fee: number;
+  eid_interval: { start: string | undefined; end: string | undefined };
+  vacation: { start: string | undefined; end: string | undefined };
+}
+
 const TOTAL_STEPS = 5;
 
 const BookingSection = () => {
-    const [settings, setSettings] = useState<{ eid_fee: number; eid_interval: { start: string | undefined; end: string | undefined } } | null>(null);
+    const [settings, setSettings] = useState<SettingsOption | null>(null);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -85,6 +91,7 @@ const BookingSection = () => {
         setSettings({
           eid_fee: parseFloat(settingsMap.get("eid_fee")) || 0,
           eid_interval: settingsMap.get("eid_interval") || { start: undefined, end: undefined },
+          vacation: settingsMap.get("vacation") || { start: undefined, end: undefined },
         });
       }
     };
@@ -137,10 +144,17 @@ const BookingSection = () => {
     return false;
   };
 
+  const isVacation = useMemo(() => {
+    if (!date || !settings?.vacation?.start || !settings?.vacation?.end) return false;
+    const vacStart = parseISO(settings.vacation.start);
+    const vacEnd = parseISO(settings.vacation.end);
+    return isWithinInterval(date, { start: startOfDay(vacStart), end: endOfDay(vacEnd) });
+  }, [date, settings]);
+
   const canProceed = () => {
     switch (step) {
       case 1: return name.trim().length > 0 && /^(010|011|012|015)\d{8}$/.test(phone) && !pendingPhoneError;
-      case 2: return !!date;
+      case 2: return !!date && !isVacation;
       case 3: return selectedServices.length > 0;
       case 4: return barber !== "";
       case 5: return customerNumber !== null;
@@ -313,7 +327,7 @@ const BookingSection = () => {
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-foreground">{t("booking.step2Title")}</h3>
                   <p className="text-sm text-muted-foreground">{t("booking.selectMultiple")}</p>
-                  <div className="space-y-4">
+                  <div className="space-y-4 h-72 overflow-auto">
                     {Object.entries(groupedServices).map(([category, servicesInCategory]) => (
                       <div key={category}>
                         <h4 className="text-lg font-semibold text-primary mb-2">{t(`admin.${category}`)}</h4>
@@ -332,7 +346,7 @@ const BookingSection = () => {
                                     : "border-border bg-secondary hover:border-primary/50"
                                 )}
                               >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 text-sm md:text-lg">
                                   <div className={cn(
                                     "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
                                     selected ? "bg-primary border-primary" : "border-muted-foreground"
@@ -349,14 +363,14 @@ const BookingSection = () => {
                       </div>
                     ))}
                   </div>
-                  {selectedServices.length > 0 && (
+                  {(selectedServices.length > 0) && (
                     <div>
-                      <div className="flex justify-between text-sm font-medium py-2 border-t border-border">
+                      {isEid &&   <div className="flex justify-between text-sm font-medium py-2 border-t border-border">
                         <span className="text-muted-foreground">{t("admin.services")}</span>
                         <span className="text-primary">
                           {servicesSubtotal} {t("booking.price_mark")}
                         </span>
-                      </div>
+                      </div>}
 
                       {isEid && (settings?.eid_fee || 0) > 0 && (
                         <div className="flex justify-between text-sm font-medium py-2">
@@ -409,6 +423,18 @@ const BookingSection = () => {
                         </div>
                       </motion.div>
                     )}
+                    {isVacation && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: 'auto' }} 
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden mt-4"
+                      >
+                        <div className="bg-primary/10 border border-primary/20 text-primary text-sm rounded-lg p-3 text-center">
+                          {t("booking.vacationMessage")}
+                        </div>
+                      </motion.div>
+                    )}
                   </AnimatePresence>
                 </div>
               )}
@@ -417,7 +443,7 @@ const BookingSection = () => {
               {step === 4 && (
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-foreground">{t("booking.step4Title")}</h3>
-                  <div className="grid gap-3">
+                  <div className="grid gap-3 max-h-72 overflow-auto">
                     {barbers.map((b) => {
                       if (!isAvailable(b)) {
                         return null;
@@ -458,7 +484,7 @@ const BookingSection = () => {
 
               {/* Step 5: Customer Number */}
               {step === 5 && (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <h3 className="text-xl font-semibold text-foreground">{t("booking.step5Title")}</h3>
                   <p className="text-sm text-muted-foreground">
                     {t("booking.queueHint", { barber: getBarberName(barbers.find((b) => b.id === barber) || { id: "", name: "", name_ar: null } as BarberOption) })}
@@ -468,9 +494,9 @@ const BookingSection = () => {
                   ) : (
                     <Tabs defaultValue="after1pm" className="w-full">
                       <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="after1pm">{t("booking.after1pm")}</TabsTrigger>
-                        <TabsTrigger value="after7pm">{t("booking.after7pm")}</TabsTrigger>
-                        <TabsTrigger value="after12am">{t("booking.after12am")}</TabsTrigger>
+                        <TabsTrigger className="text-xs md:text-md" value="after1pm">{t("booking.after1pm")}</TabsTrigger>
+                        <TabsTrigger className="text-xs md:text-md" value="after7pm">{t("booking.after7pm")}</TabsTrigger>
+                        <TabsTrigger className="text-xs md:text-md" value="after12am">{t("booking.after12am")}</TabsTrigger>
                       </TabsList>
                       <TabsContent value="after1pm">
                         <div className="grid grid-cols-5 gap-3 pt-4">
@@ -568,7 +594,7 @@ const BookingSection = () => {
           </AnimatePresence>
 
           {/* Navigation */}
-          <div className="flex justify-between mt-8 gap-4">
+          <div className="flex justify-between mt-8 gap-2 flex-col-reverse md:flex-row">
             {step > 1 ? (
               <Button variant="outline" onClick={() => setStep(step - 1)} className="gap-2">
                 <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
@@ -580,7 +606,7 @@ const BookingSection = () => {
               <Button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className="bg-gradient-gold text-primary-foreground font-semibold gap-2"
+                className="bg-gradient-gold text-primary-foreground font-semibold gap-1"
               >
                 {t("booking.next")}
                 <ChevronRight className="w-4 h-4 rtl:rotate-180" />
@@ -589,10 +615,9 @@ const BookingSection = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={!canProceed() || loading}
-                size="lg"
-                className="bg-gradient-gold text-primary-foreground font-semibold tracking-wide uppercase glow-gold gap-2"
+                className="bg-gradient-gold text-xs md:text-md size-sm md:size-lg text-primary-foreground font-semibold tracking-wide uppercase glow-gold gap-2"
               >
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-4 h-4" />
                 {loading ? t("auth.loading") : t("booking.confirmBooking")}
               </Button>
             )}

@@ -113,7 +113,8 @@ export const ar = {
     taken: "محجوز",
     number: "الرقم",
     messageAfterBooking: "شكراً لحجزك! نتطلع لإعطائك تجربة لا تُنسى في Karizma. سنرسل لك رسالة قبل خدمتك.",
-    eidMessage: "سيتم إضافة رسوم العيد مع الفاتورة الكلية."
+    eidMessage: "سيتم إضافة رسوم العيد مع الفاتورة الكلية.",
+    vacationMessage: "هذا اليوم هو يوم أجازة, لذلك لا يمكنك حجز موعد",
   },
   // Contact
   contact: {
@@ -310,17 +311,26 @@ export const ar = {
     image: "الصورة",
     imageUrl: "رابط الصورة",
     pickDate: "اختر التاريخ",
-    customRange: "تاريخ مخصص",
+    customRange: "نطاق تاريخ مخصص",
+    customDate: "تاريخ مخصص",
     date: "التاريخ",
     canceled: "ملغي",
     cancelBooking: "إلغاء الحجز",
     cancellationSuccess: "تم إلغاء الحجز بنجاح",
+    addManualBill: "إضافة فاتورة يدوي",
     // Settings
     settings: "الإعدادات",
     eidInterval: "الفترة الزمنية للحجز في عيد",
     defaultLanguage: "اللغة الافتراضية",
     eidDateRange: "الفترة الزمنية للعيد",
     manageAppSettings: "إدارة إعدادات التطبيق",
+    settingsUpdated: "تعديل الإعدادات",
+    settingsUpdatedSuccess: "تم تعديل الإعدادات بنجاح",
+    settingsUpdateError: "خطأ: لا تستطيع التعديل",
+    saving: "الحفظ",
+    vacation: "أجازة",
+    vacationDateRange: "الفترة الزمنية للأجازة",
+    vacationFee: "رسوم حجز الأجازة",
   },
   // Auth
   auth: {
