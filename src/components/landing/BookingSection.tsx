@@ -102,11 +102,7 @@ const BookingSection = () => {
     const fetchTaken = async () => {
       setLoadingSlots(true);
       const dateStr = format(date, "yyyy-MM-dd");
-      const { data } = await supabase
-        .from("bookings")
-        .select("booking_time")
-        .eq("barber_preference", barber)
-        .eq("booking_date", dateStr);
+      const { data } = await supabase.from("bookings").select("booking_time").eq("barber_preference", barber).eq("booking_date", dateStr);
       if (data) {
         setTakenNumbers(data.map((b) => parseInt(b.booking_time)).filter((n) => !isNaN(n)));
       }
@@ -218,7 +214,6 @@ const BookingSection = () => {
     const eidFee = settings?.eid_fee || 0;
     return servicesSubtotal + (isEid ? eidFee : 0);
   }, [servicesSubtotal, isEid, settings]);
-
 
   const getServiceName = (s: ServiceOption) => i18n.language === "ar" ? s.name_ar : s.name_en;
   const isAvailable = (b: BarberOption) => date?.toLocaleDateString('en-US', {weekday: 'short'}).toLowerCase() !== b.absent_day.toLowerCase();
