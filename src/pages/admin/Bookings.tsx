@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ExportButton } from '@/components/ExportButton';
 
 // Interfaces
 
@@ -292,6 +293,16 @@ const BookingsPage = () => {
     }, {} as Record<string, Booking[]>);
   }, [filteredAndSortedBookings, groupBy, getBarberName, t]);
 
+  const exportColumns = [
+    {header: t("admin.customers"), accessor: (items:Booking) => items.customer_name},
+    {header: t("admin.phone"), accessor: (items:Booking) => items.customer_phone},
+    { header: t("admin.services"), accessor: (items: Booking) => getServiceName(items.notes) || '' },
+    { header: t("admin.barber"), accessor: (items: Booking) => getBarberName(items.barber_preference) },
+    { header: t("admin.date"), accessor: (items: Booking) => format(new Date(items.booking_date), "yyyy-MM-dd") },
+    { header: t("admin.number"), accessor: (items: Booking) => items.booking_time },
+    { header: t("admin.status"), accessor: (items: Booking) => items.status },
+  ];
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -308,12 +319,21 @@ const BookingsPage = () => {
 
         {/* Filters */}
         <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap gap-2 mb-4">
-            <Button variant={period === 'daily' ? 'default' : 'outline'} onClick={() => setPeriod('daily')}>{t('admin.daily')}</Button>
-            <Button variant={period === 'weekly' ? 'default' : 'outline'} onClick={() => setPeriod('weekly')}>{t('admin.weekly')}</Button>
-            <Button variant={period === 'monthly' ? 'default' : 'outline'} onClick={() => setPeriod('monthly')}>{t('admin.monthly')}</Button>
-            <Button variant={period === 'annual' ? 'default' : 'outline'} onClick={() => setPeriod('annual')}>{t('admin.annual')}</Button>
-            <Button variant={period === 'custom' ? 'default' : 'outline'} onClick={() => setPeriod('custom')}>{t('admin.customRange')}</Button>
+          <div className="flex justify-between items-center">
+            <div className="flex flex-wrap gap-2 mb-4 items-center">
+              <Button variant={period === 'daily' ? 'default' : 'outline'} onClick={() => setPeriod('daily')}>{t('admin.daily')}</Button>
+              <Button variant={period === 'weekly' ? 'default' : 'outline'} onClick={() => setPeriod('weekly')}>{t('admin.weekly')}</Button>
+              <Button variant={period === 'monthly' ? 'default' : 'outline'} onClick={() => setPeriod('monthly')}>{t('admin.monthly')}</Button>
+              <Button variant={period === 'annual' ? 'default' : 'outline'} onClick={() => setPeriod('annual')}>{t('admin.annual')}</Button>
+              <Button variant={period === 'custom' ? 'default' : 'outline'} onClick={() => setPeriod('custom')}>{t('admin.customRange')}</Button>
+            </div>
+            <ExportButton 
+              data={filteredAndSortedBookings}
+              columns={exportColumns}
+              filename={`booking_${period}`}
+              groupedData={groupedBookings}
+              groupTitle={key => key}
+            />
           </div>
           <div className="flex flex-col md:flex-row gap-4">
             {period === 'custom' && (

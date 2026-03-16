@@ -331,6 +331,10 @@ export const ar = {
     vacation: "أجازة",
     vacationDateRange: "الفترة الزمنية للأجازة",
     vacationFee: "رسوم حجز الأجازة",
+    export: "تصدير",
+    exportAsCsv: "تصدير كـ CSV",
+    exportAsPdf: "تصدير كـ PDF",
+    paymentMethod: "طريقة الدفع",
   },
   // Auth
   auth: {

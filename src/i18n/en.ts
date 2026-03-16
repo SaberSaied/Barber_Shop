@@ -331,6 +331,10 @@ export const en = {
     vacation: "Vacation",
     vacationDateRange: "Date Range For Vacation",
     vacationFee: "Vacation Booking Fee",
+    export: "Export",
+    exportAsCsv: "Export as CSV",
+    exportAsPdf: "Export as PDF",
+    paymentMethod: "Payment Method",
   },
   // Auth
   auth: {

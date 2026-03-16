@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { ExportButton } from "@/components/ExportButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, CreditCard, Banknote, Plus, ShoppingCart, ArrowUpDown, Pencil } from "lucide-react";
@@ -461,7 +462,7 @@ const POS = () => {
         Object.entries(groupedByBarber).map(([barberId, bills]) => [
           barberId,
           {
-            bills,
+            items: bills,
             total: calculateAggregation(bills, aggregationType),
           },
         ])
@@ -521,7 +522,16 @@ const POS = () => {
     }
   };
 
-  // console.log(bookings[0].booking_date, bookingDate?.toISOString().split('T')[0]);
+
+  const exportColumns = [
+    { header: t("admin.date"), accessor: (items: Bill) => format(new Date(items.created_at), "yyyy-MM-dd") },
+    { header: t("admin.total"), accessor: "total" },
+    { header: t("admin.barber"), accessor: (items: Bill) => getBarberName(items.barber_id) },
+    { header: t("admin.paymentMethod"), accessor: "payment_method" },
+    { header: t("admin.items"), accessor: (items: Bill) => items.items.map(i => i.name).join(', ') },
+  ];
+
+  const currentPeriodData = periodData.find(p => p.key === period);
 
   return (
     <AdminLayout>
@@ -711,7 +721,19 @@ const POS = () => {
 
         {/* Bills Report */}
         <div className="glass-card rounded-xl p-6">
-          {isAdmin && <h2 className="font-display text-lg font-semibold">{t("admin.billsReport")}</h2>}
+          {isAdmin && <div className="flex items-center justify-between">
+            <h2 className="font-display text-lg font-semibold">{t("admin.billsReport")}</h2>
+            {currentPeriodData && (
+              <ExportButton
+                data={currentPeriodData.bills || []}
+                columns={exportColumns}
+                filename={`pos_bills_${currentPeriodData.key}`}
+                groupedData={currentPeriodData.grouped}
+                groupTitle={(key) => getBarberName(key as string)}
+                total={currentPeriodData.total}
+              />
+            )}
+          </div>}
           {isAdmin && <div className="grid grid-cols-2 md:grid-cols-5 gap-4 my-6">
             {periodData.map((p) => (
               <div key={p.key} className="bg-secondary rounded-lg p-4 text-center">
@@ -829,7 +851,7 @@ const POS = () => {
                       </thead>
                       <tbody>
                         {p.grouped ? (
-                          Object.entries(p.grouped).map(([barberId, { bills: barberBills, total: barberTotal }]) => (
+                          Object.entries(p.grouped).map(([barberId, { items: barberBills, total: barberTotal }]) => (
                             <React.Fragment key={barberId}>
                               <tr className="bg-muted/50">
                                 <td colSpan={3} className="py-2 px-4 font-bold text-primary">
@@ -840,7 +862,7 @@ const POS = () => {
                                 <td></td>
                                 <td></td>
                               </tr>
-                              {barberBills.map((b, idx) => (
+                              {barberBills && barberBills.map((b, idx) => (
                                 <tr key={b.id} className="border-b border-border/50">
                                   <td className="py-2 text-muted-foreground">{idx + 1}</td>
                                   <td className="py-2 text-muted-foreground text-xs">{format(new Date(b.created_at), "yyyy-MM-dd HH:mm")}</td>
