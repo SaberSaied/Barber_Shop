@@ -93,7 +93,7 @@ const POS = () => {
   const [groupBy, setGroupBy] = useState<string>("");
   const [bookingSearch, setBookingSearch] = useState("");
   const [bookingBarberFilter, setBookingBarberFilter] = useState<string>("all"); // New state for barber filter
-  const [bookingFilterType, setBookingFilterType] = useState("daily"); // daily, weekly, custom, range
+  const [bookingFilterType, setBookingFilterType] = useState("custom"); // daily, weekly, custom, range
   const [customBookingDate, setCustomBookingDate] = useState<Date | undefined>(new Date());
   const [customBookingDateRange, setCustomBookingDateRange] = useState<DateRange | undefined>({
     from: new Date(),
