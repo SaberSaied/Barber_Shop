@@ -92,6 +92,7 @@ const POS = () => {
   const [sortConfig, setSortConfig] = useState<{ key: 'created_at' | 'total' | 'barber_id'; direction: SortDirection }>({ key: 'created_at', direction: 'desc' });
   const [groupBy, setGroupBy] = useState<string>("");
   const [bookingSearch, setBookingSearch] = useState("");
+  const [bookingBarberFilter, setBookingBarberFilter] = useState<string>("all"); // New state for barber filter
   const [bookingFilterType, setBookingFilterType] = useState("daily"); // daily, weekly, custom, range
   const [customBookingDate, setCustomBookingDate] = useState<Date | undefined>(new Date());
   const [customBookingDateRange, setCustomBookingDateRange] = useState<DateRange | undefined>({
@@ -172,7 +173,21 @@ const POS = () => {
         query = query.gte('booking_date', format(customBookingDateRange.from, 'yyyy-MM-dd')).lte('booking_date', format(customBookingDateRange.to, 'yyyy-MM-dd'));
       }
 
+      // Barber Filtering Logic
+      if (bookingBarberFilter !== 'all') {
+        query = query.eq('barber_preference', bookingBarberFilter);
+      }
+
       const { data: bookData, error: bookError } = await query.order("booking_date", { ascending: true });
+      bookData.sort((a, b) => {
+        const timeA = Number(a.booking_time);
+        const timeB = Number(b.booking_time);
+
+        if (timeA < timeB) return -1;
+        if (timeA > timeB) return 1;
+        return 0;
+      });
+
       if (bookData) setBookings(bookData as Booking[]);
       if(bookError) console.error("Error fetching bookings:", bookError);
 
@@ -187,7 +202,7 @@ const POS = () => {
     };
 
     fetchFilteredData();
-  }, [bookingFilterType, customBookingDate, customBookingDateRange]);
+  }, [bookingFilterType, customBookingDate, customBookingDateRange, bookingBarberFilter]);
 
   const isEid = useMemo(() => {
     const today = new Date();
@@ -490,16 +505,21 @@ const POS = () => {
   }, [bills, nameFilter, sortConfig, groupBy, aggregationType, t, now, weekStart, weekEnd, monthStart, monthEnd, yearStart, yearEnd, date]);
 
   const filteredBookings = useMemo(() => {
-  if (!bookingSearch) {
-    return bookings;
-  }
-  return bookings.filter(booking => {
-    const searchTerm = bookingSearch.toLowerCase();
-    const nameMatch = booking.customer_name?.toLowerCase().includes(searchTerm);
-    const phoneMatch = booking.customer_phone?.includes(searchTerm);
-    return nameMatch || phoneMatch;
-  });
-}, [bookings, bookingSearch]);
+    let results = [...bookings]; // Start with all bookings from state
+
+    // Text search filtering
+    if (bookingSearch) {
+      results = results.filter(booking => {
+        const searchTerm = bookingSearch.toLowerCase();
+        const nameMatch = booking.customer_name?.toLowerCase().includes(searchTerm);
+        const phoneMatch = booking.customer_phone?.includes(searchTerm);
+        const timeMatch = booking.booking_time?.includes(searchTerm);
+        return nameMatch || phoneMatch || timeMatch;
+      });
+    }
+
+    return results;
+  }, [bookings, bookingSearch]);
 
   const groupedServices = useMemo(() => {
       return allServices.reduce((acc: Record<string, ServiceOption[]>, service: ServiceOption) => {
@@ -561,6 +581,17 @@ const POS = () => {
                     <SelectItem value="weekly">{t('admin.weekly')}</SelectItem>
                     <SelectItem value="custom">{t('admin.customDate')}</SelectItem>
                     <SelectItem value="range">{t('admin.customRange')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={bookingBarberFilter} onValueChange={setBookingBarberFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t("admin.filterByBarber")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("admin.filterByBarber")}</SelectItem>
+                    {employees.map(emp => (
+                      <SelectItem key={emp.id} value={emp.id}>{getBarberName(emp.id)}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 {bookingFilterType === 'custom' && (

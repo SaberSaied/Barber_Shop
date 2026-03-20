@@ -40,7 +40,7 @@ interface SettingsOption {
 const TOTAL_STEPS = 5;
 
 const BookingSection = () => {
-    const [settings, setSettings] = useState<SettingsOption | null>(null);
+  const [settings, setSettings] = useState<SettingsOption | null>(null);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,6 +49,7 @@ const BookingSection = () => {
   const [barbers, setBarbers] = useState<BarberOption[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [pendingPhoneError, setPendingPhoneError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [date, setDate] = useState<Date | undefined>();
@@ -56,7 +57,6 @@ const BookingSection = () => {
   const [customerNumber, setCustomerNumber] = useState<number | null>(null);
   const [takenNumbers, setTakenNumbers] = useState<number[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [pendingPhoneError, setPendingPhoneError] = useState("");
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const { user } = useAuth();

@@ -92,6 +92,8 @@ const BookingsPage = () => {
   const [sortConfig, setSortConfig] = useState<{ key: keyof Booking; direction: 'asc' | 'desc' }>({ key: 'booking_time', direction: 'asc' });
   const [groupBy, setGroupBy] = useState<'barber_preference' | 'status' | 'booking_date' | ''>("booking_date");
   const [period, setPeriod] = useState('monthly');
+  const [pendingPhoneError, setPendingPhoneError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -144,7 +146,6 @@ const BookingsPage = () => {
   };
 
   const openAdd = () => {
-    setEditingId(null);
     setForm({
       customer_name: '',
       customer_phone: '',
@@ -174,16 +175,36 @@ const BookingsPage = () => {
 
 
   const handleSave = async () => {
-    const payload = { ...form };
+    const hasPending = await checkPendingBooking();
+    if (hasPending) return;
+
     if (editingId) {
-      const { error } = await supabase.from("bookings").update(payload).eq("id", editingId);
+      const { error } = await supabase.from("bookings").update({
+        customer_id: null,
+        customer_name: form.customer_name,
+        customer_phone: form.customer_phone,
+        service_id: form.service_id || null,
+        barber_preference: form.barber_preference,
+        booking_date: form.booking_date,
+        booking_time: String(form.booking_time),
+        notes: form.notes || null,
+      }).eq("id", editingId);
       if (error) toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
     } else {
-      const { error } = await supabase.from("bookings").insert(payload);
+      const { error } = await supabase.from("bookings").insert({
+        customer_id: null,
+        customer_name: form.customer_name,
+        customer_phone: form.customer_phone,
+        service_id: form.service_id || null,
+        barber_preference: form.barber_preference,
+        booking_date: form.booking_date,
+        booking_time: String(form.booking_time),
+        notes: form.notes || null,
+      });
       if (error) toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
     }
-    setDialogOpen(false);
     fetchData();
+    setDialogOpen(false);
   };
 
   const deleteBooking = async (id: string) => {
@@ -302,6 +323,33 @@ const BookingsPage = () => {
     { header: t("admin.number"), accessor: (items: Booking) => items.booking_time },
     { header: t("admin.status"), accessor: (items: Booking) => items.status },
   ];
+
+  const validatePhone = (value: string) => {
+    const cleaned = value.replace(/\D/g, "").slice(0, 11);
+    setForm({...form, customer_phone: cleaned });
+    setPendingPhoneError("");
+    if (cleaned && !/^(010|011|012|015)\d{8}$/.test(cleaned)) {
+      setPhoneError(t("booking.phoneError"));
+    } else {
+      setPhoneError("");
+    }
+  };
+
+    const checkPendingBooking = async (): Promise<boolean> => {
+      if (!form.customer_phone) return false;
+      const { data } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("customer_phone", form.customer_phone)
+        .eq("status", "pending")
+        .limit(1);
+      if (data && data.length > 0) {
+        setPendingPhoneError(t("booking.alreadyPending"));
+        return true;
+      }
+      return false;
+    };
+
 
   return (
     <AdminLayout>
@@ -475,11 +523,22 @@ const BookingsPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="customer_name" className="text-sm font-medium mb-1 block">{t("admin.customerName")}</label>
-                <Input id="customer_name" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
+                <Input id="customer_name" placeholder={t('admin.customer')} value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
               </div>
               <div>
                 <label htmlFor="customer_phone" className="text-sm font-medium mb-1 block">{t("admin.phone")}</label>
-                <Input id="customer_phone" value={form.customer_phone} onChange={(e) => setForm({ ...form, customer_phone: e.target.value })} />
+                <Input id="customer_phone"
+                  placeholder="01XXXXXXXXX" 
+                  maxLength={11} 
+                  value={form.customer_phone} 
+                  className={cn("border-border", (phoneError || pendingPhoneError) && "border-destructive")}
+                  onChange={(e) => {
+                    validatePhone(e.target.value)
+                    setForm({ ...form, customer_phone: e.target.value })}
+                  } />
+                  {(phoneError && !pendingPhoneError) && <p className="text-xs text-destructive mt-1">{phoneError}</p>}
+                  {pendingPhoneError && <p className="text-xs text-destructive mt-1">{pendingPhoneError}</p>}
+                  {(!phoneError && !pendingPhoneError) && <p className="text-xs text-muted-foreground mt-1">{t("booking.phoneHint")}</p>}
               </div>
               <div>
                 <label htmlFor="booking_date" className="text-sm font-medium mb-1 block">{t("admin.booking_date")}</label>
