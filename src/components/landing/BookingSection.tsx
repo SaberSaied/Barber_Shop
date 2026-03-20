@@ -493,7 +493,32 @@ const BookingSection = () => {
                         <TabsTrigger className="text-xs md:text-md" value="after7pm">{t("booking.after7pm")}</TabsTrigger>
                         <TabsTrigger className="text-xs md:text-md" value="after12am">{t("booking.after12am")}</TabsTrigger>
                       </TabsList>
-                      <TabsContent value="after1pm">
+                      {isEid ? <TabsContent value="after1pm">
+                        <div className="grid grid-cols-5 gap-3 pt-4">
+                          {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => {
+                            const taken = takenNumbers.includes(num);
+                            const selected = customerNumber === num;
+                            return (
+                              <button
+                                key={num}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setCustomerNumber(num)}
+                                className={cn(
+                                  "h-12 rounded-lg font-semibold text-sm transition-all",
+                                  taken
+                                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-40 line-through"
+                                    : selected
+                                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                                    : "bg-secondary border border-border text-foreground hover:border-primary"
+                                )}
+                              >
+                                {num}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </TabsContent> : <TabsContent value="after1pm">
                         <div className="grid grid-cols-5 gap-3 pt-4">
                           {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
                             const taken = takenNumbers.includes(num);
@@ -518,8 +543,33 @@ const BookingSection = () => {
                             );
                           })}
                         </div>
-                      </TabsContent>
-                      <TabsContent value="after7pm">
+                      </TabsContent>}
+                      {isEid ? <TabsContent value="after7pm">
+                        <div className="grid grid-cols-5 gap-3 pt-4">
+                          {Array.from({ length: 15 }, (_, i) => i + 16).map((num) => {
+                            const taken = takenNumbers.includes(num);
+                            const selected = customerNumber === num;
+                            return (
+                              <button
+                                key={num}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setCustomerNumber(num)}
+                                className={cn(
+                                  "h-12 rounded-lg font-semibold text-sm transition-all",
+                                  taken
+                                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-40 line-through"
+                                    : selected
+                                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                                    : "bg-secondary border border-border text-foreground hover:border-primary"
+                                )}
+                              >
+                                {num}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </TabsContent> : <TabsContent value="after7pm">
                         <div className="grid grid-cols-5 gap-3 pt-4">
                           {Array.from({ length: 10 }, (_, i) => i + 11).map((num) => {
                             const taken = takenNumbers.includes(num);
@@ -544,8 +594,33 @@ const BookingSection = () => {
                             );
                           })}
                         </div>
-                      </TabsContent>
-                      <TabsContent value="after12am">
+                      </TabsContent>}
+                      {isEid ? <TabsContent value="after12am">
+                        <div className="grid grid-cols-5 gap-3 pt-4">
+                          {Array.from({ length: 20 }, (_, i) => i + 31).map((num) => {
+                            const taken = takenNumbers.includes(num);
+                            const selected = customerNumber === num;
+                            return (
+                              <button
+                                key={num}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setCustomerNumber(num)}
+                                className={cn(
+                                  "h-12 rounded-lg font-semibold text-sm transition-all",
+                                  taken
+                                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-40 line-through"
+                                    : selected
+                                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                                    : "bg-secondary border border-border text-foreground hover:border-primary"
+                                )}
+                              >
+                                {num}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </TabsContent> : <TabsContent value="after12am">
                         <div className="grid grid-cols-5 gap-3 pt-4">
                           {Array.from({ length: 10 }, (_, i) => i + 21).map((num) => {
                             const taken = takenNumbers.includes(num);
@@ -570,7 +645,7 @@ const BookingSection = () => {
                             );
                           })}
                         </div>
-                      </TabsContent>
+                      </TabsContent>}
                     </Tabs>
                   )}
                   <div className="flex gap-4 text-xs text-muted-foreground pt-2">
