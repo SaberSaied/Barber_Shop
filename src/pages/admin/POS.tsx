@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import React from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
@@ -99,6 +100,10 @@ const POS = () => {
     from: new Date(),
     to: new Date(),
   });
+  const [selectedBookings, setSelectedBookings] = useState<string[]>([]);
+  const [showDeleteBookingConfirm, setShowDeleteBookingConfirm] = useState(false);
+  const [selectedBills, setSelectedBills] = useState<string[]>([]);
+  const [showDeleteBillConfirm, setShowDeleteBillConfirm] = useState(false);
   const [period, setPeriod] = useState<string>("daily");
   const now = new Date();
   const [date, setDate] = React.useState<DateRange | undefined>({
@@ -441,6 +446,36 @@ const POS = () => {
     }
   };
 
+  const handleDeleteSelectedBills = async () => {
+    if (selectedBills.length === 0) return;
+    const { error } = await supabase.from('bills').delete().in('id', selectedBills);
+    if (error) {
+      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
+    } else {
+      setBills(bills.filter(b => !selectedBills.includes(b.id)));
+      toast({ title: t("admin.billsDeleted", { count: selectedBills.length }) });
+      setSelectedBills([]);
+    }
+    setShowDeleteBillConfirm(false);
+  };
+
+  const toggleBillSelection = (id: string) => {
+    setSelectedBills(prev =>
+      prev.includes(id) ? prev.filter(bId => bId !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAllBills = (currentBills: Bill[]) => {
+    const currentBillIds = currentBills.map(b => b.id);
+    const allSelectedInCurrentView = currentBillIds.length > 0 && currentBillIds.every(id => selectedBills.includes(id));
+
+    if (allSelectedInCurrentView) {
+      setSelectedBills(prev => prev.filter(id => !currentBillIds.includes(id)));
+    } else {
+      setSelectedBills(prev => [...new Set([...prev, ...currentBillIds])]);
+    }
+  };
+
   const periodData = useMemo(() => {
     let filteredBills = nameFilter
       ? bills.filter(bill =>
@@ -542,6 +577,33 @@ const POS = () => {
     }
   };
 
+  const handleDeleteSelectedBookings = async () => {
+    if (selectedBookings.length === 0) return;
+    const { error } = await supabase.from('bookings').delete().in('id', selectedBookings);
+    if (error) {
+      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
+    } else {
+      setBookings(bookings.filter(b => !selectedBookings.includes(b.id)));
+      toast({ title: t("admin.bookingsDeleted", { count: selectedBookings.length }) });
+      setSelectedBookings([]);
+    }
+    setShowDeleteBookingConfirm(false);
+  };
+
+  const toggleBookingSelection = (id: string) => {
+    setSelectedBookings(prev =>
+      prev.includes(id) ? prev.filter(bId => bId !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAllBookings = () => {
+    if (selectedBookings.length === filteredBookings.length) {
+      setSelectedBookings([]);
+    } else {
+      setSelectedBookings(filteredBookings.map(b => b.id));
+    }
+  };
+
 
   const exportColumns = [
     { header: t("admin.date"), accessor: (items: Bill) => format(new Date(items.created_at), "yyyy-MM-dd") },
@@ -565,98 +627,104 @@ const POS = () => {
           {/* Pending Bookings */}
           <div className="lg:col-span-2 h-[50vh] overflow-y-scroll px-4">
             <h2 className="font-display text-lg font-semibold mb-4">{t("admin.pendingBookings")}</h2>
-              <div className="flex items-center gap-2 mb-4">
-                <Input
-                  placeholder={t("admin.searchByNameOrPhone")}
-                  value={bookingSearch}
-                  onChange={(e) => setBookingSearch(e.target.value)}
-                  className="max-w-sm"
-                />
-                <Select value={bookingFilterType} onValueChange={setBookingFilterType}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={t('admin.filterByDate')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">{t('admin.daily')}</SelectItem>
-                    <SelectItem value="weekly">{t('admin.weekly')}</SelectItem>
-                    <SelectItem value="custom">{t('admin.customDate')}</SelectItem>
-                    <SelectItem value="range">{t('admin.customRange')}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={bookingBarberFilter} onValueChange={setBookingBarberFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={t("admin.filterByBarber")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("admin.filterByBarber")}</SelectItem>
-                    {employees.map(emp => (
-                      <SelectItem key={emp.id} value={emp.id}>{getBarberName(emp.id)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {bookingFilterType === 'custom' && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[280px] justify-start text-left font-normal",
-                          !customBookingDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {customBookingDate ? format(customBookingDate, "PPP") : <span>{t('admin.pickDate')}</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={customBookingDate}
-                        onSelect={setCustomBookingDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-                {bookingFilterType === 'range' && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="date"
-                        variant={"outline"}
-                        className={cn(
-                          "w-[300px] justify-start text-left font-normal",
-                          !customBookingDateRange && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {customBookingDateRange?.from ? (
-                          customBookingDateRange.to ? (
-                            <>
-                              {format(customBookingDateRange.from, "LLL dd, y")} -{" "}
-                              {format(customBookingDateRange.to, "LLL dd, y")}
-                            </>
-                          ) : (
-                            format(customBookingDateRange.from, "LLL dd, y")
-                          )
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <Input
+                placeholder={t("admin.searchByNameOrPhone")}
+                value={bookingSearch}
+                onChange={(e) => setBookingSearch(e.target.value)}
+                className="max-w-sm"
+              />
+              {(selectedBookings.length > 0 && isAdmin) && (
+                <Button variant="destructive" onClick={() => setShowDeleteBookingConfirm(true)}>
+                  <Trash2 className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                  {t('admin.deleteSelected')} ({selectedBookings.length})
+                </Button>
+              )}
+              <Select value={bookingFilterType} onValueChange={setBookingFilterType}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={t('admin.filterByDate')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">{t('admin.daily')}</SelectItem>
+                  <SelectItem value="weekly">{t('admin.weekly')}</SelectItem>
+                  <SelectItem value="custom">{t('admin.customDate')}</SelectItem>
+                  <SelectItem value="range">{t('admin.customRange')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={bookingBarberFilter} onValueChange={setBookingBarberFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={t("admin.filterByBarber")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("admin.filterByBarber")}</SelectItem>
+                  {employees.map(emp => (
+                    <SelectItem key={emp.id} value={emp.id}>{getBarberName(emp.id)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {bookingFilterType === 'custom' && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[280px] justify-start text-left font-normal",
+                        !customBookingDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {customBookingDate ? format(customBookingDate, "PPP") : <span>{t('admin.pickDate')}</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={customBookingDate}
+                      onSelect={setCustomBookingDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
+              {bookingFilterType === 'range' && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant={"outline"}
+                      className={cn(
+                        "w-[300px] justify-start text-left font-normal",
+                        !customBookingDateRange && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {customBookingDateRange?.from ? (
+                        customBookingDateRange.to ? (
+                          <>
+                            {format(customBookingDateRange.from, "LLL dd, y")} -{" "}
+                            {format(customBookingDateRange.to, "LLL dd, y")}
+                          </>
                         ) : (
-                          <span>{t('admin.pickDateRange')}</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={customBookingDateRange?.from}
-                        selected={customBookingDateRange}
-                        onSelect={setCustomBookingDateRange}
-                        numberOfMonths={2}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              </div>
+                          format(customBookingDateRange.from, "LLL dd, y")
+                        )
+                      ) : (
+                        <span>{t('admin.pickDateRange')}</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={customBookingDateRange?.from}
+                      selected={customBookingDateRange}
+                      onSelect={setCustomBookingDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
             {filteredBookings.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">{t("admin.noBookings")}</p>
             ) : (
@@ -664,8 +732,16 @@ const POS = () => {
                 {filteredBookings.map((b) => (
                   <div
                     key={b.id}
-                    className={`glass-card rounded-xl p-4 text-start transition-colors ${selectedBookingId === b.id ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/30"}`}
+                    data-state={selectedBookings.includes(b.id) ? 'selected' : ''}
+                    className={`glass-card rounded-xl p-4 text-start transition-colors relative ${selectedBookingId === b.id ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/30"} data-[state=selected]:bg-muted/50`}
                   >
+                    <div className="absolute top-2 ltr:right-2 rtl:left-2">
+                      {isAdmin && <Checkbox
+                        checked={selectedBookings.includes(b.id)}
+                        onCheckedChange={() => toggleBookingSelection(b.id)}
+                        aria-label={`Select booking for ${b.customer_name}`}
+                      />}
+                    </div>
                     <p className="font-medium text-sm">{b.customer_name}</p>
                     <p className="text-xs text-muted-foreground">
                       <a href={`https://wa.me/+2${b.customer_phone}?text=أهلا%20${b.customer_name}%20فاضل%20ساعة%20من%20دلوقتي%20على%20حجز%20حلاقتك%20تفضل%20بزيارتنا`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-green-700">{b.customer_phone}</a>
@@ -779,6 +855,12 @@ const POS = () => {
 
           <div className="flex justify-between items-center mb-4 gap-4">
             {isAdmin && <div className="flex items-center gap-4 flex-wrap flex-col md:flex-row">
+              {selectedBills.length > 0 && (
+                <Button variant="destructive" onClick={() => setShowDeleteBillConfirm(true)}>
+                  <Trash2 className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                  {t('admin.deleteSelected')} ({selectedBills.length})
+                </Button>
+              )}
               {(period === "custom") && (
                 <Popover>
                   <PopoverTrigger asChild>
@@ -863,7 +945,13 @@ const POS = () => {
                     <table className="w-full text-sm text-center">
                       <thead className="sticky top-0 bg-[#111] text-center">
                         <tr className="border-b border-border">
-                          <th className="p-2 text-muted-foreground font-medium">#</th>
+                          {isAdmin && <th className="p-2 text-muted-foreground font-medium">
+                            <Checkbox
+                              checked={p.bills && p.bills.length > 0 && p.bills.every((b: Bill) => selectedBills.includes(b.id))}
+                              onCheckedChange={() => toggleSelectAllBills(p.bills || [])}
+                              aria-label="Select all bills in this tab"
+                            />
+                          </th>}
                           <th className="p-2 text-muted-foreground font-medium cursor-pointer hover:text-foreground" onClick={() => requestSort('created_at')}>
                             <div className="flex items-center">{t("admin.dateTime")} {renderSortArrow('created_at')}</div>
                           </th>
@@ -895,7 +983,13 @@ const POS = () => {
                               </tr>
                               {barberBills && barberBills.map((b, idx) => (
                                 <tr key={b.id} className="border-b border-border/50">
-                                  <td className="py-2 text-muted-foreground">{idx + 1}</td>
+                                  {isAdmin && <td className="py-2">
+                                    <Checkbox
+                                      checked={selectedBills.includes(b.id)}
+                                      onCheckedChange={() => toggleBillSelection(b.id)}
+                                      aria-label={`Select bill ${b.id}`}
+                                    />
+                                  </td>}
                                   <td className="py-2 text-muted-foreground text-xs">{format(new Date(b.created_at), "yyyy-MM-dd HH:mm")}</td>
                                   <td className="py-2 text-xs max-w-[200px] truncate">
                                     {Array.isArray(b.items) ? b.items.map((i: CartItem) => i.name).join(", ") : "—"}
@@ -925,8 +1019,14 @@ const POS = () => {
                           ))
                         ) : (
                           p.bills && p.bills.map((b, idx) => (
-                            <tr key={b.id} className="border-b border-border/50">
-                              <td className="py-2 text-muted-foreground">{idx + 1}</td>
+                            <tr key={b.id} data-state={selectedBills.includes(b.id) ? 'selected' : ''} className="border-b border-border/50 data-[state=selected]:bg-muted/50">
+                              {isAdmin && <td className="py-2">
+                                <Checkbox
+                                  checked={selectedBills.includes(b.id)}
+                                  onCheckedChange={() => toggleBillSelection(b.id)}
+                                  aria-label={`Select bill ${b.id}`}
+                                />
+                              </td>}
                               <td className="py-2 text-muted-foreground text-xs">{format(new Date(b.created_at), "yyyy-MM-dd HH:mm")}</td>
                               <td className="py-2 text-xs max-w-[200px] truncate">
                                 {Array.isArray(b.items) ? b.items.map((i: CartItem) => i.name).join(", ") : "—"}
@@ -1080,6 +1180,33 @@ const POS = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showDeleteBookingConfirm} onOpenChange={setShowDeleteBookingConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.confirmDeletion')}</DialogTitle>
+          </DialogHeader>
+          <p>{t('admin.areYouSureDelete', { count: selectedBookings.length })}</p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setShowDeleteBookingConfirm(false)}>{t('admin.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDeleteSelectedBookings}>{t('admin.delete')}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteBillConfirm} onOpenChange={setShowDeleteBillConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.confirmDeletion')}</DialogTitle>
+          </DialogHeader>
+          <p>{t('admin.areYouSureDelete', { count: selectedBills.length })}</p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setShowDeleteBillConfirm(false)}>{t('admin.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDeleteSelectedBills}>{t('admin.delete')}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </AdminLayout>
   );
 };

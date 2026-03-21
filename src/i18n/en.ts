@@ -319,6 +319,7 @@ export const en = {
     canceled: "Canceled",
     cancelBooking: "Cancel Booking",
     cancellationSuccess: "Booking canceled successfully",
+    deleteSelected: "Delete Selected",
     // Settings
     settings: "Settings",
     eidInterval: "Eid's Booking Interval",

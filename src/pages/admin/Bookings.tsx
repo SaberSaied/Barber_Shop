@@ -94,6 +94,8 @@ const BookingsPage = () => {
   const [period, setPeriod] = useState('monthly');
   const [pendingPhoneError, setPendingPhoneError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [selectedBookings, setSelectedBookings] = useState<string[]>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -214,6 +216,33 @@ const BookingsPage = () => {
     } else {
       toast({ title: t("admin.success"), description: t("admin.bookingDeleted") });
       fetchData();
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedBookings.length === 0) return;
+    const { error } = await supabase.from('bookings').delete().in('id', selectedBookings);
+    if (error) {
+      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: t("admin.success"), description: t("admin.bookingsDeleted", { count: selectedBookings.length }) });
+      setSelectedBookings([]);
+      fetchData();
+    }
+    setShowDeleteConfirm(false);
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedBookings(prev =>
+      prev.includes(id) ? prev.filter(bId => bId !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedBookings.length === filteredAndSortedBookings.length) {
+      setSelectedBookings([]);
+    } else {
+      setSelectedBookings(filteredAndSortedBookings.map(b => b.id));
     }
   };
 
@@ -439,6 +468,12 @@ const BookingsPage = () => {
                 <SelectItem value="booking_date">{t("admin.date")}</SelectItem>
               </SelectContent>
             </Select>
+            {selectedBookings.length > 0 && (
+              <Button variant="destructive" onClick={() => setShowDeleteConfirm(true)}>
+                <Trash2 className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
+                {t('admin.deleteSelected')} ({selectedBookings.length})
+              </Button>
+            )}
           </div>
         </div>
 
@@ -453,6 +488,13 @@ const BookingsPage = () => {
               <table className="w-full text-sm text-center">
                 <thead className="bg-[#111] sticky top-0 z-10">
                   <tr className="border-b border-border">
+                    <th className="p-3">
+                      <Checkbox
+                        checked={filteredAndSortedBookings.length > 0 && selectedBookings.length === filteredAndSortedBookings.length}
+                        onCheckedChange={toggleSelectAll}
+                        aria-label="Select all rows"
+                      />
+                    </th>
                     <th className="p-3 text-muted-foreground font-medium cursor-pointer" onClick={() => requestSort('customer_name')}>
                       <div className="flex justify-center flex-nowrap items-center gap-2">{t("admin.customer")} <span>{renderSortArrow('customer_name')}</span></div>
                     </th>
@@ -480,13 +522,20 @@ const BookingsPage = () => {
                     <React.Fragment key={group}>
                       {groupBy !== '' && (
                         <tr className="bg-muted/50">
-                          <td colSpan={8} className="py-2 px-4 font-bold text-primary">
+                          <td colSpan={9} className="py-2 px-4 font-bold text-primary">
                             {group} ({bookings.length})
                           </td>
                         </tr>
                       )}
                       {bookings.map((booking) => (
-                        <tr key={booking.id} className="border-b border-border/50">
+                        <tr key={booking.id} className="border-b border-border/50 data-[state=selected]:bg-muted">
+                          <td className="py-3">
+                            <Checkbox
+                              checked={selectedBookings.includes(booking.id)}
+                              onCheckedChange={() => toggleSelection(booking.id)}
+                              aria-label={`Select row for ${booking.customer_name}`}
+                            />
+                          </td>
                           <td className="py-3 font-medium">{booking.customer_name}</td>
                           <td className="py-3 text-muted-foreground">{booking.customer_phone}</td>
                           <td className="py-3 text-muted-foreground">{getServiceName(booking.notes)}</td>
@@ -639,6 +688,19 @@ const BookingsPage = () => {
             <div className="flex justify-end gap-2 mt-6">
               <Button onClick={handleSave}>{editingId ? t("admin.saveChanges") : t("admin.addBooking")}</Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.confirmDeletion')}</DialogTitle>
+          </DialogHeader>
+          <p>{t('admin.areYouSureDelete', { count: selectedBookings.length })}</p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>{t('admin.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDeleteSelected}>{t('admin.delete')}</Button>
           </div>
         </DialogContent>
       </Dialog>

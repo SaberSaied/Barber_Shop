@@ -319,6 +319,7 @@ export const ar = {
     cancelBooking: "إلغاء الحجز",
     cancellationSuccess: "تم إلغاء الحجز بنجاح",
     addManualBill: "إضافة فاتورة يدوي",
+    deleteSelected: "امسح الاختيارات",
     // Settings
     settings: "الإعدادات",
     eidInterval: "الفترة الزمنية للحجز في عيد",
