@@ -337,6 +337,13 @@ export const ar = {
     exportAsCsv: "تصدير كـ CSV",
     exportAsPdf: "تصدير كـ PDF",
     paymentMethod: "طريقة الدفع",
+    sun: "الأحد",
+    mon: "الإتنين",
+    tue: "الثلاثاء",
+    wed: "الأربعاء",
+    thu: "الخميس",
+    fri: "الجمعة",
+    sat: "السبت",
   },
   // Auth
   auth: {

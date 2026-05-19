@@ -337,6 +337,13 @@ export const en = {
     exportAsCsv: "Export as CSV",
     exportAsPdf: "Export as PDF",
     paymentMethod: "Payment Method",
+    sun: "Sunday",
+    mon: "Monday",
+    tue: "Tuesday",
+    wed: "Wednesday",
+    thu: "Thursday",
+    fri: "Friday",
+    sat: "Saturday",
   },
   // Auth
   auth: {

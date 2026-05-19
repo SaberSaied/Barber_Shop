@@ -144,6 +144,11 @@ const Employees = () => {
     return /^(010|011|012|015)\d{8}$/.test(value);
   };
 
+  const weekdays = {
+    values: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    labels: [t("admin.sun"), t("admin.mon"), t("admin.tue"), t("admin.wed"), t("admin.thu"), t("admin.fri"), t("admin.sat")]
+  }
+
   const getDisplayName = (e: Employee) => {
     if (i18n.language === "ar" && e.name_ar) return e.name_ar;
     return e.name;
@@ -241,7 +246,7 @@ const Employees = () => {
                             <td className="py-3 text-muted-foreground">{e.phone || "—"}</td>
                             <td className="py-3 text-muted-foreground font-semibold">{e.salary || 0} {t("booking.price_mark")}</td>
                             <td className="py-3 text-muted-foreground">{e.schedule || "—"}</td>
-                            <td className="py-3 text-muted-foreground">{e.absent_day || "—"}</td>
+                            <td className="py-3 text-muted-foreground">{t(`admin.${e.absent_day.toLowerCase()}`) || "—"}</td>
                             <td className="py-3 flex gap-1">
                               <Button variant="ghost" size="icon" className="h-8 w-8 text-green-700 hover:bg-green-700 hover:text-white" onClick={() => openEdit(e)}>
                                 <Pencil className="w-4 h-4" />
@@ -274,7 +279,7 @@ const Employees = () => {
                         <td className="py-3 text-muted-foreground">{e.phone || "—"}</td>
                         <td className="py-3 text-muted-foreground font-semibold">{e.salary || 0} {t("booking.price_mark")}</td>
                         <td className="py-3 text-muted-foreground">{e.schedule || "—"}</td>
-                        <td className="py-3 text-muted-foreground">{e.absent_day || "—"}</td>
+                        <td className="py-3 text-muted-foreground">{t(`admin.${e.absent_day.toLowerCase()}`) || "—"}</td>
                         <td className="py-3 flex gap-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-green-700 hover:bg-green-700 hover:text-white" onClick={() => openEdit(e)}>
                             <Pencil className="w-4 h-4" />
@@ -346,8 +351,16 @@ const Employees = () => {
                 <Input value={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.value })} placeholder="Mon-Sat, 9AM-6PM" />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">{t("admin.absent_day")}</label>
-                <Input value={form.absent_day} onChange={(e) => setForm({ ...form, absent_day: e.target.value })} placeholder="Sun" />
+                <Select value={form.absent_day || ''} onValueChange={(value) => setForm({ ...form, absent_day: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("admin.absent_day")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {weekdays.values.map((day, index) => (
+                      <SelectItem key={day} value={day}>{weekdays.labels[index]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <Button onClick={handleSave} className="w-full bg-gradient-gold text-primary-foreground" disabled={!form.name.trim() || (!!form.phone && !isPhoneValid(form.phone))}>

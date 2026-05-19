@@ -219,7 +219,7 @@ export type Database = {
           role: string
           salary: number | null
           schedule: string | null
-          absent_day?: string | null
+          absent_day: string
           updated_at: string
         }
         Insert: {

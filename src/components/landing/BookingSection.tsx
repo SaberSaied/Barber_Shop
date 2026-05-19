@@ -216,7 +216,7 @@ const BookingSection = () => {
   }, [servicesSubtotal, isEid, settings]);
 
   const getServiceName = (s: ServiceOption) => i18n.language === "ar" ? s.name_ar : s.name_en;
-  const isAvailable = (b: BarberOption) => date?.toLocaleDateString('en-US', {weekday: 'short'}).toLowerCase() !== b.absent_day.toLowerCase();
+  const isAvailable = (b: BarberOption) => (isEid) || date?.toLocaleDateString('en-US', {weekday: 'short'}).toLowerCase() !== b.absent_day.toLowerCase();
   const getBarberName = (b: BarberOption) => (i18n.language === "ar" && b.name_ar) ? b.name_ar : b.name;
 
   const stepIcons = [User, CalendarDays, Scissors, UserCheck, Hash];
