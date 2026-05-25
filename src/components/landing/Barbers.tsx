@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { adham, bogy, gedo } from "@/assets";
+import { adham, bogy, gedo, omar } from "@/assets";
 
 interface Employee {
   id: string;
@@ -50,7 +50,7 @@ const Barbers = () => {
           <p className="text-muted-foreground max-w-md mx-auto">{t("barbers.subtitle")}</p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
           {barbers.map((barber, idx) => (
             <motion.div
               key={barber.id}
@@ -61,13 +61,13 @@ const Barbers = () => {
               className="group"
             >
               <div className="relative overflow-hidden rounded-xl mb-4 aspect-[4/5] bg-secondary flex items-center justify-center">
-                {barber.name.toLowerCase().includes("bogy") ? 
-                  <img src={bogy} alt="B" className="w-full h-full object-cover" /> :
-                  barber.name.toLowerCase().includes("gedo") ? <img src={gedo} alt="G" className="w-full h-full object-cover" />
+                {
+                  barber.name.toLowerCase().includes("bogy") ? <img src={bogy} alt="B" className="w-full h-full object-cover" /> 
+                  :barber.name.toLowerCase().includes("gedo") ? <img src={gedo} alt="G" className="w-full h-full object-cover" />
                   : barber.name.toLowerCase().includes("adham") ? <img src={adham} alt="A" className="w-full h-full object-cover" />
-                  : (
-                  <UserCheck className="w-20 h-20 text-muted-foreground/30" />
-                )}
+                  : barber.name.toLowerCase().includes("omar") ? <img src={omar} alt="O" className="w-full h-full object-cover" />
+                  : <UserCheck className="w-20 h-20 text-muted-foreground/30" />
+                }
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
               </div>
 

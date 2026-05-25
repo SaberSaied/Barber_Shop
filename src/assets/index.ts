@@ -1,6 +1,7 @@
 export { default as bogy } from "./bogy.jpg";
 export { default as gedo } from "./gedo.jpg";
 export { default as adham } from "./adham.jpg";
+export { default as omar } from "./omar.jpg";
 export { default as works1 } from "./works1.jpg";
 export { default as works2 } from "./works2.jpg";
 export { default as works3 } from "./works3.jpg";

@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {bogy, gedo, adham} from "@/assets";
+import {bogy, gedo, adham, omar} from "@/assets";
 
 interface Employee {
   id: string;
@@ -228,15 +228,20 @@ const Employees = () => {
                       <React.Fragment key={group}>
                         <tr className="bg-muted/50">
                           <td colSpan={9} className="py-2 px-4 font-bold text-primary">
-                            {group} ({items.length})
+                            {t(`admin.${group}`)} ({items.length})
                           </td>
                         </tr>
                         {items.map((e) => (
                           <tr key={e.id} className="border-b border-border/50">
                             <td className="py-3">
                               <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground text-xs font-bold">
-                                {e.name.charAt(0)}
-                              </div>
+                            {e.name.toLowerCase().includes("bogy") ? 
+                              <img src={bogy} alt="B" className="w-8 h-8 rounded-full" /> :
+                              e.name.toLowerCase().includes("gedo") ? <img src={gedo} alt="G" className="w-8 h-8 rounded-full" />
+                              : e.name.toLowerCase().includes("adham") ? <img src={adham} alt="A" className="w-8 h-8 rounded-full" />
+                              : e.name.toLowerCase().includes("omar") ? <img src={omar} alt="O" className="w-8 h-8 rounded-full" />
+                              : e.name.charAt(0)}
+                          </div>
                             </td>
                             <td className="py-3 font-medium">{e.name}</td>
                             <td className="py-3 text-muted-foreground">{e.name_ar || "—"}</td>
@@ -268,6 +273,7 @@ const Employees = () => {
                               <img src={bogy} alt="B" className="w-8 h-8 rounded-full" /> :
                               e.name.toLowerCase().includes("gedo") ? <img src={gedo} alt="G" className="w-8 h-8 rounded-full" />
                               : e.name.toLowerCase().includes("adham") ? <img src={adham} alt="A" className="w-8 h-8 rounded-full" />
+                              : e.name.toLowerCase().includes("omar") ? <img src={omar} alt="O" className="w-8 h-8 rounded-full" />
                               : e.name.charAt(0)}
                           </div>
                         </td>
