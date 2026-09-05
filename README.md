@@ -229,12 +229,12 @@ The project includes export functionality using:
 
 | View             | Screenshot                     |
 | ---------------- | ------------------------------ |
-| **Landing Page** | `./screenshots/landing.png`    |
-| **Dashboard**    | `./screenshots/dashboard.png`  |
-| **Bookings**     | `./screenshots/bookings.png`   |
-| **POS**          | `./screenshots/pos.png`        |
-| **Employees**    | `./screenshots/employees.png`  |
-| **Attendance**   | `./screenshots/attendance.png` |
+| **Landing Page** | ![Landing Page Mockup](./screenshots/landing.png)|
+| **Dashboard**    | ![Dashboard Mockup](./screenshots/dashboard.png)  |
+| **Bookings**     | ![Bookings Mockup](./screenshots/bookings.png)   |
+| **POS**          | ![POS Mockup](./screenshots/POS.png)        |
+| **Employees**    | ![Employees Mockup](./screenshots/employees.png)  |
+| **Attendance**   | ![Attendance Mockup](./screenshots/attendance.png) |
 
 ---
 
